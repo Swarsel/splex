@@ -1,5 +1,4 @@
 use crate::solution::ConnectionComponent;
-use itertools::Itertools;
 
 #[derive(Debug)]
 pub struct Graph {
@@ -12,41 +11,38 @@ pub struct Graph {
 
 impl Graph {
     pub fn get_connection_components(&self) -> Vec<ConnectionComponent> {
+        // find the connected components
+        let mut components = vec![];
         let mut visited = vec![false; self.adjacency.len()];
-        let mut components: Vec<ConnectionComponent> = Vec::new();
+        let mut stack = vec![];
 
-        for i in 0..self.adjacency.len() {
-            if visited[i] {continue}
-
-            let component = ConnectionComponent { indices: self.get_connected_to(i, Vec::new()).into_iter().unique().collect::<Vec<_>>()};
-
-            for index in component.indices.iter() {
-                visited[*index] = true;
+        // for (index, _) in self.adjacency.iter().enumerate() {
+        for index in 0..self.adjacency.len() {
+            if visited[index] {
+                continue;
             }
 
-            components.push(component);
+            stack.push(index);
+
+            let mut component = vec![];
+
+            while let Some(id) = stack.pop() {
+                if visited[id] {
+                    continue;
+                }
+
+                visited[id] = true;
+                component.push(id);
+
+                for adjacent in self.adjacent(id) {
+                    stack.push(adjacent);
+                }
+            }
+
+            components.push(ConnectionComponent::new(component));
         }
 
         components
-    }
-
-    fn get_connected_to(&self, id: usize, mut already_visited: Vec<usize>) -> Vec<usize> {
-        let mut connected = vec![id];
-
-        for adjacent in self.adjacent(id) {
-            if already_visited.contains(&adjacent) {
-                continue;
-            }
-            
-            already_visited.push(id);
-            
-            let conn = self.get_connected_to(adjacent, already_visited.clone());
-
-            already_visited.extend(conn.iter());
-            connected.extend(conn.iter());
-        }
-
-        connected
     }
 
     fn adjacent(&self, id: usize) -> Vec<usize> {

@@ -8,7 +8,7 @@ fn parse_metadata(input: &str) -> IResult<&str, GraphMetadata> {
     let (input, m) = terminated(complete::u32, multispace1)(input)?;
     let (input, _) = terminated(complete::u32, line_ending)(input)?;
 
-    Ok((input, GraphMetadata {s, num_vertices: n, num_edges: m}))
+    Ok((input, GraphMetadata {s, num_vertices: n, _num_edges: m}))
 }
 
 fn parse_edge(input: &str) -> IResult<&str, EdgeData> {
@@ -22,7 +22,7 @@ fn parse_edge(input: &str) -> IResult<&str, EdgeData> {
 
 pub fn parse(input: &str) -> Option<Graph> {
     let (input, metadata) = parse_metadata(input).ok()?;
-    let (input, edges) = separated_list1(line_ending, parse_edge)(input).ok()?;
+    let (_, edges) = separated_list1(line_ending, parse_edge)(input).ok()?;
 
 
     let mut adjacency = (0..(metadata.num_vertices)).into_iter().map(|_|
@@ -45,7 +45,7 @@ pub fn parse(input: &str) -> Option<Graph> {
 struct GraphMetadata {
     s: u32,
     num_vertices: u32,
-    num_edges: u32,
+    _num_edges: u32,
 }
 
 struct EdgeData {

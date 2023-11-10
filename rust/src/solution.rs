@@ -8,6 +8,13 @@ pub struct ConnectionComponent {
     pub indices: Vec<usize>
 }
 
+impl ConnectionComponent {
+    pub fn new(mut indices: Vec<usize>) -> Self {
+        indices.sort();
+        Self { indices }
+    }
+}
+
 #[derive(Default)]
 pub struct Solution {
     pub cost: u32,
