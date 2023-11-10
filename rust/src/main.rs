@@ -3,16 +3,22 @@ mod graph;
 mod parser;
 mod construction;
 
+use construction::ConstructionHeuristic;
 
-// const INPUT: &str = include_str!("../../instances/test_instances/heur003_n_120_m_2588.txt");
-const INPUT: &str = include_str!("2conncomp.txt");
+
+const INPUT: &str = include_str!("../../instances/test_instances/heur003_n_120_m_2588.txt");
+// const INPUT: &str = include_str!("2conncomp.txt");
 
 fn main() {
     let graph = parser::parse(INPUT).unwrap();
 
-    let connection_components = graph.get_connection_components();
+    let solution = construction::Greedy::new(0.5).construct(&graph);
 
-    for comp in connection_components.iter() {
-        println!("{}\n", comp.indices.iter().map(|v| v.to_string() + " ").collect::<String>());
-    }
+    println!("{:?}", graph);
+
+    println!("{:?}", solution);
+
+    let modified_graph = graph::Graph::from_solution(&graph, &solution);
+
+    println!("{:?}", modified_graph);
 }

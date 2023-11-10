@@ -1,6 +1,6 @@
-use crate::solution::ConnectionComponent;
+use crate::solution::{ConnectionComponent, Solution};
+use std::fmt::{Debug, Formatter};
 
-#[derive(Debug)]
 pub struct Graph {
     pub s: u32,
     pub adjacency: Vec<Vec<bool>>,
@@ -8,10 +8,25 @@ pub struct Graph {
     pub weights: Vec<Vec<u32>>,
 }
 
+impl Debug for Graph {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        // output adjacency as 0/1 matrix
+        for row in self.adjacency.iter() {
+            for col in row.iter() {
+                if *col {
+                    write!(f, "█")?;
+                } else {
+                    write!(f, " ")?;
+                }
+            }
+            writeln!(f)?;
+        }
+        Ok(())
+    }
+}
 
 impl Graph {
     pub fn get_connection_components(&self) -> Vec<ConnectionComponent> {
-        // find the connected components
         let mut components = vec![];
         let mut visited = vec![false; self.adjacency.len()];
         let mut stack = vec![];
@@ -46,11 +61,33 @@ impl Graph {
     }
 
     fn adjacent(&self, id: usize) -> Vec<usize> {
-        self.adjacency[id].iter().enumerate().filter_map(|(index, connected)| {
-            if *connected {
-                return Some(index);
+        self.adjacency[id]
+            .iter()
+            .enumerate()
+            .filter_map(|(index, connected)| {
+                if *connected {
+                    return Some(index);
+                }
+                None
+            })
+            .collect()
+    }
+
+    pub fn from_solution(graph: &Graph, solution: &Solution) -> Self {
+        let mut adjacency = vec![vec![false; graph.adjacency.len()]; graph.adjacency.len()];
+
+        for i in 0..graph.adjacency.len() {
+            for j in 0..graph.adjacency.len() {
+                adjacency[i][j] = graph.adjacency[i][j] ^ solution.modified_edges[i][j];
+                adjacency[j][i] = adjacency[i][j];
             }
-            None
-        }).collect()
+        }
+
+        Self {
+            s: graph.s,
+            adjacency,
+            initial: graph.initial.clone(),
+            weights: graph.weights.clone(),
+        }
     }
 }

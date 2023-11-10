@@ -34,7 +34,9 @@ pub fn parse(input: &str) -> Option<Graph> {
 
     for edge in edges {
         adjacency[edge.start][edge.end] = edge.present;
+        adjacency[edge.end][edge.start] = edge.present;
         weights[edge.start][edge.end] = edge.weight;
+        weights[edge.end][edge.start] = edge.weight;
     }
 
     let initial = adjacency.clone();
