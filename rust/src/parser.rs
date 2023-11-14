@@ -1,4 +1,4 @@
-use crate::graph::Graph;
+use crate::{graph::Graph, symmat::SymMat};
 use nom::{self, IResult, character::complete::{self, multispace1}, character::complete::line_ending, sequence::terminated, multi::separated_list1};
 
 
@@ -24,19 +24,13 @@ pub fn parse(input: &str) -> Option<Graph> {
     let (input, metadata) = parse_metadata(input).ok()?;
     let (_, edges) = separated_list1(line_ending, parse_edge)(input).ok()?;
 
+    let mut adjacency = SymMat::new(metadata.num_vertices as usize);
+    let mut weights = SymMat::new(metadata.num_vertices as usize);
 
-    let mut adjacency = (0..(metadata.num_vertices)).into_iter().map(|_|
-        (0..(metadata.num_vertices)).into_iter().map(|_| false).collect::<Vec<_>>()
-    ).collect::<Vec<_>>();
-    let mut weights = (0..(metadata.num_vertices)).into_iter().map(|_|
-        (0..(metadata.num_vertices)).into_iter().map(|_| 0u32).collect::<Vec<_>>()
-    ).collect::<Vec<_>>();
 
     for edge in edges {
-        adjacency[edge.start][edge.end] = edge.present;
-        adjacency[edge.end][edge.start] = edge.present;
-        weights[edge.start][edge.end] = edge.weight;
-        weights[edge.end][edge.start] = edge.weight;
+        adjacency.set(edge.start, edge.end, edge.present);
+        weights.set(edge.start, edge.end, edge.weight);
     }
 
     let initial = adjacency.clone();

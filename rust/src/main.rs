@@ -2,6 +2,7 @@ mod solution;
 mod graph;
 mod parser;
 mod construction;
+mod symmat;
 
 use construction::ConstructionHeuristic;
 

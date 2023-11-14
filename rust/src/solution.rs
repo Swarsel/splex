@@ -2,8 +2,9 @@ use std::fmt::Debug;
 use std::fmt::Formatter;
 
 use crate::graph::Graph;
+use crate::symmat::SymMat;
 
-#[derive(Default)]
+#[derive(Default, Clone, Copy, Debug)]
 pub struct Vertex {
     pub degree: u32,
 }
@@ -20,29 +21,23 @@ impl ConnectionComponent {
     }
 }
 
-#[derive(Default)]
+
 pub struct Solution {
     pub cost: u32,
     pub vertices: Vec<Vertex>,
     pub connection_components: Vec<ConnectionComponent>,
-    pub modified_edges: Vec<Vec<bool>>,
+    pub modified_edges: SymMat<bool>,
 }
 
 impl Solution {
     pub fn new(graph: &Graph) -> Self {
-        let mut vertices = vec![];
-        let mut modified_edges = vec![];
-
-        for _ in 0..graph.adjacency.len() {
-            vertices.push(Vertex::default());
-            modified_edges.push(vec![false; graph.adjacency.len()]);
-        }
+        let vertices = vec![Vertex::default(); graph.adjacency.len()];
 
         Self {
             cost: 0,
             vertices,
             connection_components: vec![],
-            modified_edges,
+            modified_edges: SymMat::new(graph.adjacency.len()),
         }
     }
 }
@@ -53,12 +48,7 @@ impl Debug for Solution {
         writeln!(f, "connection_components: {:?}", self.connection_components.len())?;
 
         writeln!(f, "modified_edges:")?;
-        for row in self.modified_edges.iter() {
-            for col in row.iter() {
-                write!(f, "{}", (*col) as u32)?;
-            }
-            writeln!(f)?;
-        }
+        self.modified_edges.print_block(f)?;
         Ok(())
     }
 }

@@ -1,6 +1,6 @@
 use crate::{
     graph::Graph,
-    solution::{Solution, Vertex, ConnectionComponent},
+    solution::{ConnectionComponent, Solution, Vertex},
 };
 
 pub trait ConstructionHeuristic {
@@ -18,11 +18,15 @@ impl ConstructionHeuristic for Greedy {
         // 3. Identify edges with minimum weight to add or remove
         let mut solution = Solution::new(graph);
 
-        solution.vertices = graph
-            .adjacency
-            .iter()
-            .map(|adjacent_to| {
-                let degree = adjacent_to.iter().filter(|&connected| *connected).count() as u32;
+        solution.vertices = (0..graph.adjacency.len())
+            .map(|index| {
+                let degree = graph
+                    .adjacency
+                    .get_col(index)
+                    .iter()
+                    .filter(|&connected| *connected)
+                    .count() as u32;
+
                 Vertex { degree }
             })
             .collect();
@@ -67,8 +71,8 @@ impl Greedy {
         for i in 0..comp.len() {
             for j in i + 1..comp.len() {
                 // check if edge exists
-                if !graph.initial[comp[i]][comp[j]] {
-                    let weight = graph.weights[comp[i]][comp[j]];
+                if !*graph.initial.get(comp[i], comp[j]) {
+                    let weight = graph.weights.get(comp[i], comp[j]);
                     edges.push((weight, comp[i], comp[j]));
                 }
             }
@@ -77,12 +81,13 @@ impl Greedy {
         edges.sort_by(|a, b| a.0.cmp(&b.0));
 
         for (_, i, j) in edges {
-            if solution.vertices[i].degree < comp.len() as u32 - graph.s {
+            let min_degree = comp.len() as u32 - graph.s;
+            
+            if solution.vertices[i].degree < min_degree {
                 solution.vertices[i].degree += 1;
                 solution.vertices[j].degree += 1;
-                solution.cost += graph.weights[i][j];
-                solution.modified_edges[i][j] = true;
-                solution.modified_edges[j][i] = true;
+                solution.cost += graph.weights.get(i, j);
+                solution.modified_edges.set(i,j, true);
             }
         }
     }
@@ -93,8 +98,8 @@ impl Greedy {
 
         for i in 0..comp.len() {
             for j in i + 1..comp.len() {
-                if graph.initial[comp[i]][comp[j]] {
-                    let weight = graph.weights[comp[i]][comp[j]];
+                if *graph.initial.get(comp[i], comp[j]) {
+                    let weight = graph.weights.get(comp[i], comp[j]);
                     edges.push((weight, comp[i], comp[j]));
                 }
             }
