@@ -25,20 +25,43 @@ impl ConnectionComponent {
 pub struct Solution {
     pub cost: u32,
     pub vertices: Vec<Vertex>,
+    pub edges: SymMat<bool>,
     pub connection_components: Vec<ConnectionComponent>,
-    pub modified_edges: SymMat<bool>,
 }
 
 impl Solution {
     pub fn new(graph: &Graph) -> Self {
-        let vertices = vec![Vertex::default(); graph.adjacency.len()];
+        let vertices = vec![Vertex::default(); graph.initial.len()];
 
         Self {
             cost: 0,
             vertices,
             connection_components: vec![],
-            modified_edges: SymMat::new(graph.adjacency.len()),
+            edges: graph.initial.clone(),
         }
+    }
+
+    pub fn is_connection_component_splex(&self, component: &ConnectionComponent, s: u32) -> bool {
+        if component.indices.len() == 0 {
+            println!("empty component");
+            return true;
+        }
+
+        if component.indices.len() == 1 {
+            return self.vertices[component.indices[0]].degree == 0;
+        }
+
+        let required_degree = component.indices.len() as i32 - s as i32;
+
+        if required_degree < 0 {
+            return true;
+        }
+
+        let required_degree = required_degree as u32;
+
+        component.indices
+            .iter()
+            .all(|&index| self.vertices[index].degree >= required_degree)
     }
 }
 
@@ -47,8 +70,8 @@ impl Debug for Solution {
         writeln!(f, "cost: {}", self.cost)?;
         writeln!(f, "connection_components: {:?}", self.connection_components.len())?;
 
-        writeln!(f, "modified_edges:")?;
-        self.modified_edges.print_block(f)?;
+        writeln!(f, "edges:")?;
+        self.edges.print_block(f)?;
         Ok(())
     }
 }

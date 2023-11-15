@@ -1,3 +1,5 @@
+use itertools::Itertools;
+
 use crate::{
     graph::Graph,
     solution::{ConnectionComponent, Solution, Vertex},
@@ -18,10 +20,10 @@ impl ConstructionHeuristic for Greedy {
         // 3. Identify edges with minimum weight to add or remove
         let mut solution = Solution::new(graph);
 
-        solution.vertices = (0..graph.adjacency.len())
+        solution.vertices = (0..graph.initial.len())
             .map(|index| {
                 let degree = graph
-                    .adjacency
+                    .initial
                     .get_col(index)
                     .iter()
                     .filter(|&connected| *connected)
@@ -31,11 +33,13 @@ impl ConstructionHeuristic for Greedy {
             })
             .collect();
 
-        let connected_components = graph.get_connection_components();
+        let connected_components = Graph::get_connection_components(&graph.initial);
 
         for comp in connected_components.iter() {
             self.repair_component(graph, &mut solution, comp);
         }
+
+        solution.connection_components = Graph::get_connection_components(&solution.edges);
 
         solution
     }
@@ -43,10 +47,16 @@ impl ConstructionHeuristic for Greedy {
 
 impl Greedy {
     pub fn new(threshold: f32) -> Self {
-        Self { threshold }
+        Self {
+            threshold
+        }
     }
 
     fn repair_component(&self, graph: &Graph, solution: &mut Solution, comp: &ConnectionComponent) {
+        if solution.is_connection_component_splex(comp, graph.s) {
+            return;
+        }
+
         // calculate average degree
         let avg_degree = comp
             .indices
@@ -55,11 +65,20 @@ impl Greedy {
             .sum::<u32>() as f32
             / comp.indices.len() as f32;
 
-        if avg_degree > self.threshold * graph.s as f32 {
+        let required_degree = comp.indices.len() as u32 - graph.s;
+
+        if avg_degree > self.threshold * required_degree as f32 {
             self.add_edges(graph, solution, comp);
         } else {
-            self.add_edges(graph, solution, comp)
-            // self.remove_edges(graph, solution, &comp.indices);
+            self.remove_edges(graph, solution, &comp.indices);
+
+            // check if component has split
+            let components =
+                Graph::get_connection_component_including(&solution.edges, &comp.indices);
+
+            for comp in components {
+                self.repair_component(graph, solution, &comp);
+            }
         }
     }
 
@@ -71,7 +90,7 @@ impl Greedy {
         for i in 0..comp.len() {
             for j in i + 1..comp.len() {
                 // check if edge exists
-                if !*graph.initial.get(comp[i], comp[j]) {
+                if !*solution.edges.get(comp[i], comp[j]) {
                     let weight = graph.weights.get(comp[i], comp[j]);
                     edges.push((weight, comp[i], comp[j]));
                 }
@@ -82,32 +101,47 @@ impl Greedy {
 
         for (_, i, j) in edges {
             let min_degree = comp.len() as u32 - graph.s;
-            
+
             if solution.vertices[i].degree < min_degree {
                 solution.vertices[i].degree += 1;
                 solution.vertices[j].degree += 1;
                 solution.cost += graph.weights.get(i, j);
-                solution.modified_edges.set(i,j, true);
+                solution.edges.set(i, j, true);
             }
         }
     }
 
     fn remove_edges(&self, graph: &Graph, solution: &mut Solution, comp: &Vec<usize>) {
-        // find edges with minimum weight to remove so all degrees are at most comp.len() - s
-        let mut edges = vec![];
+        // find vertex with minimum degree >= 2
+        let mut min_degree_index = None;
+        let mut min_degree = u32::MAX;
 
-        for i in 0..comp.len() {
-            for j in i + 1..comp.len() {
-                if *graph.initial.get(comp[i], comp[j]) {
-                    let weight = graph.weights.get(comp[i], comp[j]);
-                    edges.push((weight, comp[i], comp[j]));
-                }
+        for index in comp {
+            if solution.vertices[*index].degree < min_degree && solution.vertices[*index].degree > 1 {
+                min_degree_index = Some(*index);
+                min_degree = solution.vertices[*index].degree;
             }
         }
 
-        edges.sort_by(|a, b| b.0.cmp(&a.0));
+        // remove all but the most expensive edge
+        if let Some(min_degree_index) = min_degree_index {
+            let mut edges = vec![];
 
-        // remove edges until the component is no longer connected
-        todo!("remove edges until component is no longer connected")
+            for i in 0..solution.edges.len() {
+                if *solution.edges.get(min_degree_index, i) {
+                    edges.push((graph.weights.get(min_degree_index, i), min_degree_index, i));
+                }
+            }
+
+            edges.sort_by(|a, b| b.0.cmp(&a.0));
+            edges.pop();
+
+            for (_, i, j) in edges {
+                solution.vertices[i].degree -= 1;
+                solution.vertices[j].degree -= 1;
+                solution.cost += graph.weights.get(i, j);
+                solution.edges.set(i, j, false);
+            }
+        }
     }
 }

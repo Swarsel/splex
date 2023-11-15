@@ -6,20 +6,39 @@ mod symmat;
 
 use construction::ConstructionHeuristic;
 
+use std::fs;
 
-const INPUT: &str = include_str!("../../instances/test_instances/heur003_n_120_m_2588.txt");
-// const INPUT: &str = include_str!("2conncomp.txt");
+use crate::graph::Graph;
+
+fn load_graph(id: usize) -> graph::Graph {
+    let mut paths = fs::read_dir("../instances/test_instances").unwrap();
+
+    let fp = paths.find(|path| {
+        let path = path.as_ref().unwrap().path();
+        let path = path.to_str().unwrap();
+
+        path.contains(format!("heur{:03}_", id).as_str())
+    });
+
+    // load file 
+    let fp = fp.unwrap().unwrap().path();
+    let fp = fp.to_str().unwrap();
+
+    let content = fs::read_to_string(fp).unwrap();
+
+    parser::parse(&content).unwrap()
+}
+
 
 fn main() {
-    let graph = parser::parse(INPUT).unwrap();
+    for i in 1..=10 {
+        let graph = load_graph(i);
 
-    let solution = construction::Greedy::new(0.5).construct(&graph);
 
-    println!("{:?}", graph);
+        let solution = construction::Greedy::new(0.4).construct(&graph);
 
-    println!("{:?}", solution);
-
-    let modified_graph = graph::Graph::from_solution(&graph, &solution);
-
-    println!("{:?}", modified_graph);
+        println!("Graph: {}", i);
+        println!("{:?}", solution);
+        dbg!(Graph::get_connection_components(&graph.initial).len());
+    }
 }

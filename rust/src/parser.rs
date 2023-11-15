@@ -24,18 +24,17 @@ pub fn parse(input: &str) -> Option<Graph> {
     let (input, metadata) = parse_metadata(input).ok()?;
     let (_, edges) = separated_list1(line_ending, parse_edge)(input).ok()?;
 
-    let mut adjacency = SymMat::new(metadata.num_vertices as usize);
+    let mut initial = SymMat::new(metadata.num_vertices as usize);
     let mut weights = SymMat::new(metadata.num_vertices as usize);
 
 
     for edge in edges {
-        adjacency.set(edge.start, edge.end, edge.present);
+        initial.set(edge.start, edge.end, edge.present);
         weights.set(edge.start, edge.end, edge.weight);
     }
 
-    let initial = adjacency.clone();
 
-    Some(Graph {s: metadata.s, adjacency, initial, weights})
+    Some(Graph {s: metadata.s, initial, weights})
 }
 
 struct GraphMetadata {
