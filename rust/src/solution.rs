@@ -22,15 +22,16 @@ impl ConnectionComponent {
 }
 
 
-pub struct Solution {
+pub struct Solution<'a> {
     pub cost: u32,
     pub vertices: Vec<Vertex>,
     pub edges: SymMat<bool>,
     pub connection_components: Vec<ConnectionComponent>,
+    graph: &'a Graph,
 }
 
-impl Solution {
-    pub fn new(graph: &Graph) -> Self {
+impl<'a> Solution<'a> {
+    pub fn new(graph: &'a Graph) -> Self {
         let vertices = vec![Vertex::default(); graph.initial.len()];
 
         Self {
@@ -38,6 +39,7 @@ impl Solution {
             vertices,
             connection_components: vec![],
             edges: graph.initial.clone(),
+            graph,
         }
     }
 
@@ -63,9 +65,35 @@ impl Solution {
             .iter()
             .all(|&index| self.vertices[index].degree >= required_degree)
     }
+
+    pub fn remove_edge(&mut self, row: usize, col: usize) {
+        self.vertices[row].degree -= 1;
+        self.vertices[col].degree -= 1;
+
+        if *self.graph.initial.get(row, col) {
+            self.cost += self.graph.weights.get(row, col);
+        } else {
+            self.cost -= self.graph.weights.get(row, col);
+        }
+
+        self.edges.set(row, col, false);
+    }
+
+    pub fn add_edge(&mut self, row: usize, col: usize) {
+        self.vertices[row].degree += 1;
+        self.vertices[col].degree += 1;
+        
+        if *self.graph.initial.get(row, col) {
+            self.cost -= self.graph.weights.get(row, col);
+        } else {
+            self.cost += self.graph.weights.get(row, col);
+        }
+
+        self.edges.set(row, col, true);
+    }
 }
 
-impl Debug for Solution {
+impl<'a> Debug for Solution<'a> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         writeln!(f, "cost: {}", self.cost)?;
         writeln!(f, "connection_components: {:?}", self.connection_components.len())?;

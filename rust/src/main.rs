@@ -31,11 +31,11 @@ fn load_graph(id: usize) -> graph::Graph {
 
 
 fn main() {
-    for i in 1..=10 {
+    for i in 1..=3 {
         let graph = load_graph(i);
 
 
-        let solution = construction::Greedy::new(0.4).construct(&graph);
+        let solution = construction::Greedy::new(0.7).construct(&graph);
 
         println!("Graph: {}", i);
         println!("{:?}", solution);

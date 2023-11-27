@@ -1,20 +1,18 @@
-use itertools::Itertools;
-
 use crate::{
     graph::Graph,
     solution::{ConnectionComponent, Solution, Vertex},
 };
 
-pub trait ConstructionHeuristic {
-    fn construct(&self, graph: &Graph) -> Solution;
+pub trait ConstructionHeuristic<'a> {
+    fn construct(&self, graph: &'a Graph) -> Solution<'a>;
 }
 
 pub struct Greedy {
     threshold: f32,
 }
 
-impl ConstructionHeuristic for Greedy {
-    fn construct(&self, graph: &Graph) -> Solution {
+impl<'a> ConstructionHeuristic<'a> for Greedy {
+    fn construct(&self, graph: &'a Graph) -> Solution<'a> {
         // 1. Identify connection components
         // 2. For each component: determine if better to add or remove edges
         // 3. Identify edges with minimum weight to add or remove
@@ -99,14 +97,11 @@ impl Greedy {
 
         edges.sort_by(|a, b| a.0.cmp(&b.0));
 
-        for (_, i, j) in edges {
-            let min_degree = comp.len() as u32 - graph.s;
+        let min_degree = comp.len() as u32 - graph.s;
 
+        for (_, i, j) in edges {
             if solution.vertices[i].degree < min_degree {
-                solution.vertices[i].degree += 1;
-                solution.vertices[j].degree += 1;
-                solution.cost += graph.weights.get(i, j);
-                solution.edges.set(i, j, true);
+                solution.add_edge(i, j);
             }
         }
     }
@@ -137,10 +132,7 @@ impl Greedy {
             edges.pop();
 
             for (_, i, j) in edges {
-                solution.vertices[i].degree -= 1;
-                solution.vertices[j].degree -= 1;
-                solution.cost += graph.weights.get(i, j);
-                solution.edges.set(i, j, false);
+                solution.remove_edge(i, j);
             }
         }
     }

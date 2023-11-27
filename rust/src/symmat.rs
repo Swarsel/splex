@@ -7,8 +7,8 @@ pub struct SymMat<T> {
 
 impl<T> SymMat<T> {
     fn get_index(&self, row: usize, col: usize) -> usize {
-        debug_assert!(row < self.size);
-        debug_assert!(col < self.size);
+        assert!(row < self.size);
+        assert!(col < self.size);
 
         let row = row as isize;
         let col = col as isize;
@@ -91,7 +91,6 @@ impl<T: Debug> SymMat<T> {
 }
 
 impl SymMat<bool> {
-    // change to use formatter as in Debug trait
     pub fn print_block(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         for row in 0..self.size {
             for col in 0..self.size {
