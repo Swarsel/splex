@@ -1,49 +1,66 @@
 use crate::neighborhood::neighborhood::Neighborhood;
 use crate::solution::Solution;
+use crate::neighborhood::stepfunction::StepFunction;
 
 pub struct OneFlip;
 
 impl Neighborhood for OneFlip {
-    fn iter_neighbors<'a>(&self, solution: Solution<'a>) -> Box<dyn Iterator<Item = Solution<'a>> + 'a> {
-        Box::new(OneFlipIter::<'a>::new(solution))
-    }
-}
+    fn get_solution<'a>(&self, solution: &mut Solution<'a>, stepfn: &StepFunction) -> bool {
+        let mut sol = solution.clone();
+        let mut prev_flip = None;
+        let mut found = false;
 
-struct OneFlipIter<'a> {
-    original: Solution<'a>,
-    row: usize,
-    col: usize,
-}
+        match stepfn {
+            StepFunction::BestImprovement => {
+                while let Some(current_flip) = OneFlip::next(&mut sol, prev_flip) {
+                    if sol.is_valid() && sol.cost < solution.cost {
+                        *solution = sol.clone();
+                        found = true;
+                    }
+                    prev_flip = Some(current_flip);
+                }
 
-impl<'a> OneFlipIter<'a> {
-    fn new(original: Solution<'a>) -> Self {
-        Self {
-            original,
-            row: 0,
-            col: 1,
+                found
+            }
+            StepFunction::FirstImprovement => {
+                while let Some(current_flip) = OneFlip::next(&mut sol, prev_flip) {
+                    if sol.is_valid() && sol.cost < solution.cost {
+                        *solution = sol;
+                        found = true;
+                        break;
+                    }
+                    prev_flip = Some(current_flip);
+                }
+
+                found
+            }
         }
     }
 }
 
-impl<'a> Iterator for OneFlipIter<'a> {
-    type Item = Solution<'a>;
+impl OneFlip {
+    fn next (solution: &mut Solution, prev: Option<(usize, usize)>) -> Option<(usize, usize)> {
+        let current_flip = match prev {
+            Some((prev_row, prev_col)) => {
+                solution.flip_edge(prev_row, prev_col);
 
-    fn next(&mut self) -> Option<Self::Item> {
-        if self.row == self.original.edges.len() - 1 {
+                if prev_col == solution.edges.len() - 1 {
+                    (prev_row + 1, prev_row + 2)
+                } else {
+                    (prev_row, prev_col + 1)
+                }
+            }
+            None => {
+                (0, 1)
+            }
+        };
+
+        if current_flip.0 == solution.edges.len() - 1 {
             return None;
         }
 
-        let mut solution = self.original.clone();
+        solution.flip_edge(current_flip.0, current_flip.1);
 
-        solution.flip_edge(self.row, self.col);
-
-        if self.col == self.original.edges.len() - 1 {
-            self.row += 1;
-            self.col = self.row + 1;
-        } else {
-            self.col += 1;
-        }
-
-        Some(solution)
+        return Some(current_flip);
     }
 }

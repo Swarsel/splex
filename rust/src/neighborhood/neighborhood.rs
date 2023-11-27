@@ -1,6 +1,7 @@
 use crate::solution::Solution;
 
+use super::stepfunction::StepFunction;
 
 pub trait Neighborhood {
-    fn iter_neighbors<'a>(&self, solution: Solution<'a>) -> Box<dyn Iterator<Item = Solution<'a>> + 'a>;
+    fn get_solution<'a>(&self, solution: &mut Solution<'a>, stepfn: &StepFunction) -> bool;
 }

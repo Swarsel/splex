@@ -4,14 +4,17 @@ mod neighborhood;
 mod parser;
 mod solution;
 mod symmat;
+mod vnd;
 
 use crate::construction::ConstructionHeuristic;
 use crate::neighborhood::oneflip::OneFlip;
 
-use std::fs;
+use crate::neighborhood::stepfunction::StepFunction;
+use crate::vnd::VND;
 
-use crate::graph::Graph;
-use crate::neighborhood::neighborhood::Neighborhood;
+use std::fs;
+use std::io::Write;
+
 
 fn load_graph(id: usize) -> graph::Graph {
     let mut paths = fs::read_dir("../instances/test_instances").unwrap();
@@ -33,28 +36,26 @@ fn load_graph(id: usize) -> graph::Graph {
 }
 
 fn main() {
-    for i in 1..=1 {
+    let mut out = fs::File::create("out.txt").unwrap();
+
+    for i in 9..=10 {
+        println!("Graph: {}", i);
+
         let graph = load_graph(i);
 
-        let solution = construction::Greedy::new(0.7).construct(&graph);
+        let vnd = VND::new(
+            Box::new(construction::Greedy::new(0.7)), 
+            vec![(Box::new(OneFlip), StepFunction::FirstImprovement)]
+        );
 
-        println!("Initial solution: {}", solution.cost);
+        let start = std::time::Instant::now();
+        let best = vnd.run(&graph);
+        let elapsed = start.elapsed();
 
-        let neighborhood = OneFlip;
+        println!("Best solution: {}", best.cost);
+        println!("Elapsed: {:?}", elapsed);
 
-        let mut best = solution.clone();
-
-        for neighbor in neighborhood.iter_neighbors(solution.clone()) {
-            if neighbor.is_valid() {
-                println!("Neighbor: {}", neighbor.cost);
-                if neighbor.cost < best.cost {
-                    best = neighbor;
-                }
-            }
-        }
-
-        println!("Graph: {}", i);
-        println!("{:?}", best);
-        dbg!(Graph::get_connection_components(&graph.initial).len());
+        writeln!(out, "Graph {}", i).unwrap();
+        writeln!(out, "{:?}", best).unwrap();
     }
 }
