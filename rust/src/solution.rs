@@ -9,7 +9,7 @@ pub struct Vertex {
     pub degree: u32,
 }
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Clone)]
 pub struct ConnectionComponent {
     pub indices: Vec<usize>
 }
@@ -22,12 +22,13 @@ impl ConnectionComponent {
 }
 
 
+#[derive(Clone)]
 pub struct Solution<'a> {
     pub cost: u32,
     pub vertices: Vec<Vertex>,
     pub edges: SymMat<bool>,
     pub connection_components: Vec<ConnectionComponent>,
-    graph: &'a Graph,
+    pub graph: &'a Graph,
 }
 
 impl<'a> Solution<'a> {
@@ -90,6 +91,20 @@ impl<'a> Solution<'a> {
         }
 
         self.edges.set(row, col, true);
+    }
+
+    pub fn flip_edge(&mut self, row: usize, col: usize) {
+        if *self.edges.get(row, col) {
+            self.remove_edge(row, col);
+        } else {
+            self.add_edge(row, col);
+        }
+    }
+
+    pub fn is_valid(&self) -> bool {
+        self.connection_components
+            .iter()
+            .all(|comp| self.is_connection_component_splex(comp, self.graph.s))
     }
 }
 

@@ -1,4 +1,4 @@
-use std::fmt::Debug;
+use std::fmt::{Debug, Formatter};
 
 pub struct SymMat<T> {
     data: Vec<T>,
@@ -40,8 +40,8 @@ impl<T> SymMat<T> {
     }
 }
 
-impl<T: Clone> SymMat<T> {
-    pub fn clone(&self) -> Self {
+impl<T: Clone> Clone for SymMat<T> {
+    fn clone(&self) -> Self {
         Self {
             data: self.data.clone(),
             size: self.size,
@@ -92,7 +92,9 @@ impl<T: Debug> SymMat<T> {
 
 impl SymMat<bool> {
     pub fn print_block(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        writeln!(f, "╔{}╗", "═".repeat(self.size))?;
         for row in 0..self.size {
+            write!(f, "║")?;
             for col in 0..self.size {
                 if *self.get(row, col) {
                     write!(f, "█")?;
@@ -100,9 +102,16 @@ impl SymMat<bool> {
                     write!(f, " ")?;
                 }
             }
-            writeln!(f)?;
+            writeln!(f, "║")?;
         }
+        writeln!(f, "╚{}╝", "═".repeat(self.size))?;
         Ok(())
+    }
+}
+
+impl Debug for SymMat<bool> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        self.print_block(f)
     }
 }
 
