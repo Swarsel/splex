@@ -53,7 +53,7 @@ fn main() {
 
         let start = std::time::Instant::now();
         // let best = vnd.run(&graph);
-        let best = grasp.run(&graph);
+        let best = grasp.run(&graph, true);
         let elapsed = start.elapsed();
 
         println!("Best solution: {}", best.cost);

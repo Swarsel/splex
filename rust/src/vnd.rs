@@ -20,8 +20,8 @@ impl VND {
         }
     }
 
-    pub fn run<'a>(&self, graph: &'a Graph) -> Solution<'a> {
-        let mut solution = self.construction_heuristic.construct(graph);
+    pub fn run<'a>(&self, graph: &'a Graph, random: bool) -> Solution<'a> {
+        let mut solution = self.construction_heuristic.construct(graph, random);
 
         let mut k = 0;
 

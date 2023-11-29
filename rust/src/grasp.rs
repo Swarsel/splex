@@ -9,12 +9,11 @@ impl GRASP {
         Self { vnd }
     }
 
-    pub fn run<'a>(&self, graph: &'a Graph) -> Solution<'a> {
+    pub fn run<'a>(&self, graph: &'a Graph, random: bool) -> Solution<'a> {
         let mut best_solution = Solution::new(graph);
 
-        for it in 0..1 {
-            // todo: add randomized greedy heuristic to construction
-            let solution_candidate = self.vnd.run(&graph);
+        for it in 0..3 {
+            let solution_candidate = self.vnd.run(&graph, random);
             if it == 0 {
                 best_solution = solution_candidate;
             } else if solution_candidate.cost < best_solution.cost {
