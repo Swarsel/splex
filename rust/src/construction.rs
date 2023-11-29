@@ -45,9 +45,7 @@ impl<'a> ConstructionHeuristic<'a> for Greedy {
 
 impl Greedy {
     pub fn new(threshold: f32) -> Self {
-        Self {
-            threshold
-        }
+        Self { threshold }
     }
 
     fn repair_component(&self, graph: &Graph, solution: &mut Solution, comp: &ConnectionComponent) {
@@ -112,7 +110,8 @@ impl Greedy {
         let mut min_degree = u32::MAX;
 
         for index in comp {
-            if solution.vertices[*index].degree < min_degree && solution.vertices[*index].degree > 1 {
+            if solution.vertices[*index].degree < min_degree && solution.vertices[*index].degree > 1
+            {
                 min_degree_index = Some(*index);
                 min_degree = solution.vertices[*index].degree;
             }

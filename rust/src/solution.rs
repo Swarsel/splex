@@ -11,7 +11,7 @@ pub struct Vertex {
 
 #[derive(Default, Debug, Clone)]
 pub struct ConnectionComponent {
-    pub indices: Vec<usize>
+    pub indices: Vec<usize>,
 }
 
 impl ConnectionComponent {
@@ -20,7 +20,6 @@ impl ConnectionComponent {
         Self { indices }
     }
 }
-
 
 #[derive(Clone)]
 pub struct Solution<'a> {
@@ -62,7 +61,8 @@ impl<'a> Solution<'a> {
 
         let required_degree = required_degree as u32;
 
-        component.indices
+        component
+            .indices
             .iter()
             .all(|&index| self.vertices[index].degree >= required_degree)
     }
@@ -83,7 +83,7 @@ impl<'a> Solution<'a> {
     pub fn add_edge(&mut self, row: usize, col: usize) {
         self.vertices[row].degree += 1;
         self.vertices[col].degree += 1;
-        
+
         if *self.graph.initial.get(row, col) {
             self.cost -= self.graph.weights.get(row, col);
         } else {
@@ -111,7 +111,11 @@ impl<'a> Solution<'a> {
 impl<'a> Debug for Solution<'a> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         writeln!(f, "cost: {}", self.cost)?;
-        writeln!(f, "connection_components: {:?}", self.connection_components.len())?;
+        writeln!(
+            f,
+            "connection_components: {:?}",
+            self.connection_components.len()
+        )?;
 
         writeln!(f, "edges:")?;
         self.edges.print_block(f)?;

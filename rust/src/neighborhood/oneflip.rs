@@ -1,6 +1,6 @@
 use crate::neighborhood::neighborhood::Neighborhood;
-use crate::solution::Solution;
 use crate::neighborhood::stepfunction::StepFunction;
+use crate::solution::Solution;
 
 pub struct OneFlip;
 
@@ -39,7 +39,7 @@ impl Neighborhood for OneFlip {
 }
 
 impl OneFlip {
-    fn next (solution: &mut Solution, prev: Option<(usize, usize)>) -> Option<(usize, usize)> {
+    fn next(solution: &mut Solution, prev: Option<(usize, usize)>) -> Option<(usize, usize)> {
         let current_flip = match prev {
             Some((prev_row, prev_col)) => {
                 solution.flip_edge(prev_row, prev_col);
@@ -50,9 +50,7 @@ impl OneFlip {
                     (prev_row, prev_col + 1)
                 }
             }
-            None => {
-                (0, 1)
-            }
+            None => (0, 1),
         };
 
         if current_flip.0 == solution.edges.len() - 1 {

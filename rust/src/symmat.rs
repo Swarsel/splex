@@ -115,7 +115,6 @@ impl Debug for SymMat<bool> {
     }
 }
 
-
 impl std::ops::BitXor for &SymMat<bool> {
     type Output = SymMat<bool>;
 

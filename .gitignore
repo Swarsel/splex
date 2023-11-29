@@ -1,1 +1,3 @@
-rust/target
+.direnv/
+rust/target/
+rust/out.txt

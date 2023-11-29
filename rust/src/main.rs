@@ -1,5 +1,6 @@
 mod construction;
 mod graph;
+mod grasp;
 mod neighborhood;
 mod parser;
 mod solution;
@@ -7,6 +8,7 @@ mod symmat;
 mod vnd;
 
 use crate::construction::ConstructionHeuristic;
+use crate::grasp::GRASP;
 use crate::neighborhood::oneflip::OneFlip;
 
 use crate::neighborhood::stepfunction::StepFunction;
@@ -14,7 +16,6 @@ use crate::vnd::VND;
 
 use std::fs;
 use std::io::Write;
-
 
 fn load_graph(id: usize) -> graph::Graph {
     let mut paths = fs::read_dir("../instances/test_instances").unwrap();
@@ -44,12 +45,15 @@ fn main() {
         let graph = load_graph(i);
 
         let vnd = VND::new(
-            Box::new(construction::Greedy::new(0.7)), 
-            vec![(Box::new(OneFlip), StepFunction::FirstImprovement)]
+            Box::new(construction::Greedy::new(0.7)),
+            vec![(Box::new(OneFlip), StepFunction::FirstImprovement)],
         );
 
+        let grasp = GRASP::new(vnd);
+
         let start = std::time::Instant::now();
-        let best = vnd.run(&graph);
+        // let best = vnd.run(&graph);
+        let best = grasp.run(&graph);
         let elapsed = start.elapsed();
 
         println!("Best solution: {}", best.cost);

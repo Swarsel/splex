@@ -48,7 +48,10 @@ impl Graph {
         components
     }
 
-    pub fn get_connection_component_including(adjacency: &SymMat<bool>, vertices: &Vec<usize>) -> Vec<ConnectionComponent> {
+    pub fn get_connection_component_including(
+        adjacency: &SymMat<bool>,
+        vertices: &Vec<usize>,
+    ) -> Vec<ConnectionComponent> {
         let mut components = vec![];
         let mut visited = vec![false; adjacency.len()];
         let mut stack = vec![];
