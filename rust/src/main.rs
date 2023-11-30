@@ -9,7 +9,7 @@ mod vnd;
 
 use crate::construction::ConstructionHeuristic;
 use crate::grasp::GRASP;
-use crate::neighborhood::oneflip::OneFlip;
+use crate::neighborhood::nflip::NFlip;
 
 use crate::neighborhood::stepfunction::StepFunction;
 use crate::vnd::VND;
@@ -46,7 +46,7 @@ fn main() {
 
         let vnd = VND::new(
             Box::new(construction::Greedy::new(0.7)),
-            vec![(Box::new(OneFlip), StepFunction::RandomChoice)],
+            vec![(Box::new(NFlip { n: 2 }), StepFunction::FirstImprovement)],
         );
 
         let grasp = GRASP::new(vnd);
