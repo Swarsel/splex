@@ -46,7 +46,7 @@ fn main() {
 
         let vnd = VND::new(
             Box::new(construction::Greedy::new(0.7)),
-            vec![(Box::new(NFlip { n: 2 }), StepFunction::FirstImprovement)],
+            vec![(Box::new(NFlip::new(2)), StepFunction::FirstImprovement)],
         );
 
         let grasp = GRASP::new(vnd);
