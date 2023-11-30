@@ -1,6 +1,7 @@
 use crate::neighborhood::neighborhood::Neighborhood;
 use crate::neighborhood::stepfunction::StepFunction;
 use crate::solution::Solution;
+use rand::Rng;
 
 pub struct OneFlip;
 
@@ -34,6 +35,21 @@ impl Neighborhood for OneFlip {
 
                 found
             }
+            StepFunction::RandomChoice => {
+                let size = solution.edges.len();
+                let searchlen = size * (size + 1) / 2;
+                // this is possibly crude, but the best I could come up with
+                for _ in 0..=searchlen {
+                    OneFlip::random(&mut sol);
+                    if sol.is_valid() {
+                        *solution = sol;
+                        found = true;
+                        break;
+                    }
+                }
+
+                found
+            }
         }
     }
 }
@@ -60,5 +76,19 @@ impl OneFlip {
         solution.flip_edge(current_flip.0, current_flip.1);
 
         return Some(current_flip);
+    }
+    fn random(solution: &mut Solution) -> (usize, usize) {
+        let size = solution.edges.len() - 1;
+        let row = rand::thread_rng().gen_range(0..size);
+        // adjust to prevent landing in col == row
+        let mut col = size; // in case row rolled size - 1, there is only one option for col
+        if row != size - 1 {
+            col = 1 + row + rand::thread_rng().gen_range(0..size - 1 - row);
+        }
+        let current_flip = (row, col);
+
+        solution.flip_edge(current_flip.0, current_flip.1);
+
+        current_flip
     }
 }

@@ -46,7 +46,7 @@ fn main() {
 
         let vnd = VND::new(
             Box::new(construction::Greedy::new(0.7)),
-            vec![(Box::new(OneFlip), StepFunction::FirstImprovement)],
+            vec![(Box::new(OneFlip), StepFunction::RandomChoice)],
         );
 
         let grasp = GRASP::new(vnd);
