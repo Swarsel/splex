@@ -1,28 +1,21 @@
-use crate::graph::Graph;
 use crate::neighborhood::neighborhood::Neighborhood;
 use crate::neighborhood::stepfunction::StepFunction;
 use crate::solution::Solution;
-use crate::ConstructionHeuristic;
 
 pub struct VND {
-    construction_heuristic: Box<dyn for<'a> ConstructionHeuristic<'a>>,
     neighborhoods: Vec<(Box<dyn Neighborhood>, StepFunction)>,
 }
 
 impl VND {
     pub fn new(
-        construction_heuristic: Box<dyn for<'a> ConstructionHeuristic<'a>>,
         neighborhoods: Vec<(Box<dyn Neighborhood>, StepFunction)>,
     ) -> Self {
         Self {
-            construction_heuristic,
             neighborhoods,
         }
     }
 
-    pub fn run<'a>(&self, graph: &'a Graph, random: bool) -> Solution<'a> {
-        let mut solution = self.construction_heuristic.construct(graph, random);
-
+    pub fn run<'a>(&self, mut solution: Solution<'a>) -> Solution<'a> {
         let mut k = 0;
 
         while k < self.neighborhoods.len() {

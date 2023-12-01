@@ -7,7 +7,7 @@ mod solution;
 mod symmat;
 mod vnd;
 
-use crate::construction::ConstructionHeuristic;
+use crate::construction::{ConstructionHeuristic, Greedy};
 use crate::grasp::GRASP;
 use crate::neighborhood::nflip::NFlip;
 
@@ -49,11 +49,11 @@ fn main() {
             vec![(Box::new(NFlip::new(2)), StepFunction::FirstImprovement)],
         );
 
-        let grasp = GRASP::new(vnd);
+        let grasp = GRASP::new(Box::new(Greedy::new(0.7)), vnd);
 
         let start = std::time::Instant::now();
         // let best = vnd.run(&graph);
-        let best = grasp.run(&graph, true);
+        let best = grasp.run(&graph);
         let elapsed = start.elapsed();
 
         println!("Best solution: {}", best.cost);
