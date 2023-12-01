@@ -1,6 +1,12 @@
 use crate::{graph::Graph, symmat::SymMat};
-use nom::{self, IResult, character::complete::{self, multispace1}, character::complete::line_ending, sequence::terminated, multi::separated_list1};
-
+use nom::{
+    self,
+    character::complete::line_ending,
+    character::complete::{self, multispace1},
+    multi::separated_list1,
+    sequence::terminated,
+    IResult,
+};
 
 fn parse_metadata(input: &str) -> IResult<&str, GraphMetadata> {
     let (input, s) = terminated(complete::u32, multispace1)(input)?;
@@ -8,7 +14,14 @@ fn parse_metadata(input: &str) -> IResult<&str, GraphMetadata> {
     let (input, m) = terminated(complete::u32, multispace1)(input)?;
     let (input, _) = terminated(complete::u32, line_ending)(input)?;
 
-    Ok((input, GraphMetadata {s, num_vertices: n, _num_edges: m}))
+    Ok((
+        input,
+        GraphMetadata {
+            s,
+            num_vertices: n,
+            _num_edges: m,
+        },
+    ))
 }
 
 fn parse_edge(input: &str) -> IResult<&str, EdgeData> {
@@ -17,7 +30,15 @@ fn parse_edge(input: &str) -> IResult<&str, EdgeData> {
     let (input, present) = terminated(complete::u32, multispace1)(input)?;
     let (input, weight) = complete::u32(input)?;
 
-    Ok((input, EdgeData {start: start as usize - 1, end: end as usize - 1, present: present == 1, weight}))
+    Ok((
+        input,
+        EdgeData {
+            start: start as usize - 1,
+            end: end as usize - 1,
+            present: present == 1,
+            weight,
+        },
+    ))
 }
 
 pub fn parse(input: &str) -> Option<Graph> {
@@ -27,14 +48,16 @@ pub fn parse(input: &str) -> Option<Graph> {
     let mut initial = SymMat::new(metadata.num_vertices as usize);
     let mut weights = SymMat::new(metadata.num_vertices as usize);
 
-
     for edge in edges {
         initial.set(edge.start, edge.end, edge.present);
         weights.set(edge.start, edge.end, edge.weight);
     }
 
-
-    Some(Graph {s: metadata.s, initial, weights})
+    Some(Graph {
+        s: metadata.s,
+        initial,
+        weights,
+    })
 }
 
 struct GraphMetadata {

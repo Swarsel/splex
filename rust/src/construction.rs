@@ -1,10 +1,13 @@
+use rand::seq::SliceRandom;
+use rand::thread_rng;
+
 use crate::{
     graph::Graph,
     solution::{ConnectionComponent, Solution, Vertex},
 };
 
 pub trait ConstructionHeuristic<'a> {
-    fn construct(&self, graph: &'a Graph) -> Solution<'a>;
+    fn construct(&self, graph: &'a Graph, random: bool) -> Solution<'a>;
 }
 
 pub struct Greedy {
@@ -12,7 +15,7 @@ pub struct Greedy {
 }
 
 impl<'a> ConstructionHeuristic<'a> for Greedy {
-    fn construct(&self, graph: &'a Graph) -> Solution<'a> {
+    fn construct(&self, graph: &'a Graph, random: bool) -> Solution<'a> {
         // 1. Identify connection components
         // 2. For each component: determine if better to add or remove edges
         // 3. Identify edges with minimum weight to add or remove
@@ -31,8 +34,12 @@ impl<'a> ConstructionHeuristic<'a> for Greedy {
             })
             .collect();
 
-        let connected_components = Graph::get_connection_components(&graph.initial);
+        let mut connected_components = Graph::get_connection_components(&graph.initial);
 
+        // implement random construction heuristic by shuffling the connected components, resulting in a random order of repairing
+        if random == true {
+            connected_components.shuffle(&mut thread_rng());
+        }
         for comp in connected_components.iter() {
             self.repair_component(graph, &mut solution, comp);
         }
@@ -45,9 +52,7 @@ impl<'a> ConstructionHeuristic<'a> for Greedy {
 
 impl Greedy {
     pub fn new(threshold: f32) -> Self {
-        Self {
-            threshold
-        }
+        Self { threshold }
     }
 
     fn repair_component(&self, graph: &Graph, solution: &mut Solution, comp: &ConnectionComponent) {
@@ -112,7 +117,8 @@ impl Greedy {
         let mut min_degree = u32::MAX;
 
         for index in comp {
-            if solution.vertices[*index].degree < min_degree && solution.vertices[*index].degree > 1 {
+            if solution.vertices[*index].degree < min_degree && solution.vertices[*index].degree > 1
+            {
                 min_degree_index = Some(*index);
                 min_degree = solution.vertices[*index].degree;
             }
