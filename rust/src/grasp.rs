@@ -14,7 +14,7 @@ impl<'a> GRASP<'a> {
         let mut best_solution = None;
 
         for _ in 0..3 {
-            let solution = self.construction_heuristic.construct(graph, true);
+            let solution = self.construction_heuristic.construct(graph);
             let solution_candidate = self.vnd.run(solution);
 
             match best_solution {

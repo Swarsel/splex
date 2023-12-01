@@ -7,15 +7,16 @@ use crate::{
 };
 
 pub trait ConstructionHeuristic<'a> {
-    fn construct(&self, graph: &'a Graph, random: bool) -> Solution<'a>;
+    fn construct(&self, graph: &'a Graph) -> Solution<'a>;
 }
 
 pub struct Greedy {
     threshold: f32,
+    random: bool,
 }
 
 impl<'a> ConstructionHeuristic<'a> for Greedy {
-    fn construct(&self, graph: &'a Graph, random: bool) -> Solution<'a> {
+    fn construct(&self, graph: &'a Graph) -> Solution<'a> {
         // 1. Identify connection components
         // 2. For each component: determine if better to add or remove edges
         // 3. Identify edges with minimum weight to add or remove
@@ -35,11 +36,7 @@ impl<'a> ConstructionHeuristic<'a> for Greedy {
             .collect();
 
         let mut connected_components = Graph::get_connection_components(&graph.initial);
-
-        // implement random construction heuristic by shuffling the connected components, resulting in a random order of repairing
-        if random == true {
-            connected_components.shuffle(&mut thread_rng());
-        }
+  
         for comp in connected_components.iter() {
             self.repair_component(graph, &mut solution, comp);
         }
@@ -51,8 +48,8 @@ impl<'a> ConstructionHeuristic<'a> for Greedy {
 }
 
 impl Greedy {
-    pub fn new(threshold: f32) -> Self {
-        Self { threshold }
+    pub fn new(threshold: f32, random: bool) -> Self {
+        Self { threshold, random }
     }
 
     fn repair_component(&self, graph: &Graph, solution: &mut Solution, comp: &ConnectionComponent) {
@@ -70,7 +67,7 @@ impl Greedy {
 
         let required_degree = comp.indices.len() as u32 - graph.s;
 
-        if avg_degree > self.threshold * required_degree as f32 {
+        if avg_degree > self.threshold * required_degree as f32 || (self.random && rand::random()) {
             self.add_edges(graph, solution, comp);
         } else {
             self.remove_edges(graph, solution, &comp.indices);

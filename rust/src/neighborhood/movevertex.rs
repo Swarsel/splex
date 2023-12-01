@@ -5,6 +5,7 @@ use crate::neighborhood::stepfunction::StepFunction;
 use crate::solution::Solution;
 
 use itertools::{Itertools, Product};
+use rand::Rng;
 
 /// Moves a single vertex to another connected component
 pub struct MoveVertex;
@@ -41,9 +42,24 @@ impl Neighborhood for MoveVertex {
                 }
             }
             StepFunction::RandomChoice => {
-                unimplemented!()
+                let mut rng = rand::thread_rng();
+
+                let vertex = rng.gen_range(0 .. solution.edges.len());
+                let mut component = rng.gen_range(0 .. solution.connection_components.len());
+                if solution.connection_components[component]
+                    .indices
+                    .contains(&vertex)
+                {
+                    component = (component + 1) % solution.connection_components.len();
+                }
+
+                MoveVertex::move_vertex(solution, vertex, component);
+
+                found = true;
             }
         }
+
+        solution.recalculate_connection_components();
 
         found
     }

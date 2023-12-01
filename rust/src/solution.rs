@@ -67,6 +67,10 @@ impl<'a> Solution<'a> {
             .all(|&index| self.vertices[index].degree >= required_degree)
     }
 
+    pub fn recalculate_connection_components(&mut self) {
+        self.connection_components = Graph::get_connection_components(&self.edges);
+    }
+
     pub fn remove_edge(&mut self, row: usize, col: usize) {
         self.vertices[row].degree -= 1;
         self.vertices[col].degree -= 1;

@@ -20,8 +20,6 @@ impl Neighborhood for OneFlip {
                     }
                     prev_flip = Some(current_flip);
                 }
-
-                found
             }
             StepFunction::FirstImprovement => {
                 while let Some(current_flip) = OneFlip::next(&mut sol, prev_flip) {
@@ -32,8 +30,6 @@ impl Neighborhood for OneFlip {
                     }
                     prev_flip = Some(current_flip);
                 }
-
-                found
             }
             StepFunction::RandomChoice => {
                 let size = solution.edges.len();
@@ -47,10 +43,12 @@ impl Neighborhood for OneFlip {
                         break;
                     }
                 }
-
-                found
             }
         }
+
+        solution.recalculate_connection_components();
+
+        found
     }
 }
 

@@ -5,10 +5,7 @@ use rand::Rng;
 
 use itertools::Itertools;
 
-pub static mut I: usize = 0;
-pub static mut NUM_IMPROVEMENTS: usize = 0;
-
-static MAX_COMP_SIZE: usize = 50;
+const MAX_COMP_SIZE: usize = 30;
 
 /// Looks at all neighbors with N flips inside a single splex
 pub struct NFlip<const N: usize>;
@@ -32,29 +29,9 @@ impl<const N: usize> Neighborhood for NFlip<{ N }> {
             StepFunction::FirstImprovement => {
                 while let Some(current_step_data) = NFlip::next(&mut sol, prev_step_data) {
                     if sol.is_valid() && sol.cost < solution.cost {
-                        println!("Found better solution: {}", sol.cost);
-                        unsafe {
-                            NUM_IMPROVEMENTS += 1;
-                        }
                         *solution = sol;
                         found = true;
                         break;
-                    } else {
-                        unsafe {
-                            I += 1;
-                            if I % 10_000_000 == 0 {
-
-                                let mut i = I;
-                                let mut s = String::new();
-                                while i >= 1000 {
-                                    s = format!(".{:03}{}", i % 1000, s);
-                                    i /= 1000;
-                                }
-                                s = format!("{}{}", i, s);
-
-                                println!("[{}] Current solution: {}", s, sol.cost);
-                            }
-                        }
                     }
                     prev_step_data = Some(current_step_data);
                 }

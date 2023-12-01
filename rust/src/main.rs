@@ -10,18 +10,25 @@ mod solution;
 mod symmat;
 mod vnd;
 mod gvns;
+mod stoppingcriterion;
 
 use crate::construction::{ConstructionHeuristic, Greedy};
 use crate::grasp::GRASP;
 use crate::neighborhood::movevertex::MoveVertex;
 use crate::neighborhood::nflip::{self, NFlip};
+use crate::neighborhood::movenvertices::MoveNVertices;
 
 use crate::neighborhood::oneflip::OneFlip;
+use crate::neighborhood::plexdissolve::PlexDissolve;
+use crate::neighborhood::plexjoin::PlexJoin;
 use crate::neighborhood::stepfunction::StepFunction;
+use crate::stoppingcriterion::TimedStoppingCriterion;
 use crate::vnd::VND;
+use crate::gvns::GVNS;
 
 use std::fs;
 use std::io::Write;
+use std::time::Duration;
 
 fn load_graph(id: usize) -> graph::Graph {
     let mut paths = if (49..=51).contains(&id) {
@@ -51,26 +58,39 @@ fn main() {
 
     let total = std::time::Instant::now();
 
-    for i in 49..=51 {
+    for i in 49..=49 {
         println!("Graph: {}", i);
 
         let graph = load_graph(i);
 
         let vnd = VND::new(
             vec![
-                    (Box::new(OneFlip), StepFunction::BestImprovement),
-                    (Box::new(MoveVertex), StepFunction::FirstImprovement),
+                    (Box::new(OneFlip), StepFunction::FirstImprovement),
+                    (Box::new(MoveVertex), StepFunction::BestImprovement),
                     (Box::new(NFlip::<3>), StepFunction::FirstImprovement),
                 ],
         ); 
 
+        let gvns = GVNS::new(vnd, 
+            vec![
+                Box::new(MoveNVertices::<8>),
+                Box::new(PlexDissolve),
+                Box::new(PlexDissolve),
+                Box::new(PlexJoin),
+            ]);
+            
+
         // let grasp = GRASP::new(Box::new(Greedy::new(0.7)), vnd);
 
-        let solution = Greedy::new(0.7).construct(&graph, false);
+        let solution = Greedy::new(0.7, false).construct(&graph);
         println!("Initial solution: {}", solution.cost);
 
         let start = std::time::Instant::now();
-        let best = vnd.run(solution);
+        let best = gvns.run(
+            solution, 
+            TimedStoppingCriterion::new(Duration::from_secs(60 * 15))
+        );
+        // let best = vnd.run(solution);
         // let best = grasp.run(&graph);
         let elapsed = start.elapsed();
 
@@ -86,6 +106,4 @@ fn main() {
     let elapsed = total.elapsed();
 
     println!("Total elapsed: {:?}", elapsed);
-    println!("NFlip improvements: {}", unsafe { nflip::NUM_IMPROVEMENTS });
-    println!("NFlip iterations: {}", unsafe { nflip::I });
 }
