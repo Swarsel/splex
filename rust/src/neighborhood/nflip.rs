@@ -3,91 +3,172 @@ use crate::neighborhood::stepfunction::StepFunction;
 use crate::solution::Solution;
 use rand::Rng;
 
-pub struct NFlip {
-    pub n: u8,
-}
+use itertools::Itertools;
 
-impl Neighborhood for NFlip {
+pub static mut I: usize = 0;
+pub static mut NUM_IMPROVEMENTS: usize = 0;
+
+static MAX_COMP_SIZE: usize = 50;
+
+/// Looks at all neighbors with N flips inside a single splex
+pub struct NFlip<const N: usize>;
+
+impl<const N: usize> Neighborhood for NFlip<{ N }> {
     fn get_solution<'a>(&self, solution: &mut Solution<'a>, stepfn: &StepFunction) -> bool {
         let mut found = false;
         let mut sol = solution.clone();
-        let mut prev_flip = None;
-        for _ in 0..=self.n {
-            match stepfn {
-                StepFunction::BestImprovement => {
-                    while let Some(current_flip) = NFlip::next(&mut sol, prev_flip) {
-                        if sol.is_valid() && sol.cost < solution.cost {
-                            *solution = sol.clone();
-                            found = true;
-                        }
-                        prev_flip = Some(current_flip);
+        let mut prev_step_data: Option<StepData<{ N }>> = None;
+
+        match stepfn {
+            StepFunction::BestImprovement => {
+                while let Some(current_step_data) = NFlip::next(&mut sol, prev_step_data) {
+                    if sol.is_valid() && sol.cost < solution.cost {
+                        *solution = sol.clone();
+                        found = true;
                     }
-                }
-                StepFunction::FirstImprovement => {
-                    while let Some(current_flip) = NFlip::next(&mut sol, prev_flip) {
-                        if sol.is_valid() && sol.cost < solution.cost {
-                            *solution = sol;
-                            found = true;
-                            break;
-                        }
-                        prev_flip = Some(current_flip);
-                    }
-                }
-                StepFunction::RandomChoice => {
-                    let size = solution.edges.len();
-                    let searchlen = size * (size + 1) / 2;
-                    // this is possibly crude, but the best I could come up with
-                    for _ in 0..=searchlen {
-                        NFlip::random(&mut sol);
-                        if sol.is_valid() {
-                            *solution = sol;
-                            found = true;
-                            break;
-                        }
-                    }
+                    prev_step_data = Some(current_step_data);
                 }
             }
+            StepFunction::FirstImprovement => {
+                while let Some(current_step_data) = NFlip::next(&mut sol, prev_step_data) {
+                    if sol.is_valid() && sol.cost < solution.cost {
+                        println!("Found better solution: {}", sol.cost);
+                        unsafe {
+                            NUM_IMPROVEMENTS += 1;
+                        }
+                        *solution = sol;
+                        found = true;
+                        break;
+                    } else {
+                        unsafe {
+                            I += 1;
+                            if I % 10_000_000 == 0 {
 
-            if found == true {
-                sol = solution.clone();
-                found = false;
-                prev_flip = None;
-                continue;
-            } else {
-                break;
+                                let mut i = I;
+                                let mut s = String::new();
+                                while i >= 1000 {
+                                    s = format!(".{:03}{}", i % 1000, s);
+                                    i /= 1000;
+                                }
+                                s = format!("{}{}", i, s);
+
+                                println!("[{}] Current solution: {}", s, sol.cost);
+                            }
+                        }
+                    }
+                    prev_step_data = Some(current_step_data);
+                }
+            }
+            StepFunction::RandomChoice => {
+                unimplemented!()
+                // let size = solution.edges.len();
+                // let searchlen = size * (size + 1) / 2;
+                // // this is possibly crude, but the best I could come up with
+                // for _ in 0..=searchlen {
+                //     NFlip::random(&mut sol);
+                //     if sol.is_valid() {
+                //         *solution = sol;
+                //         found = true;
+                //         break;
+                //     }
+                // }
             }
         }
+
         found
     }
 }
 
-impl NFlip {
-    pub fn new(n: u8) -> Self {
-        Self { n }
-    }
+struct StepData<const N: usize> {
+    prev_flips: Option<Vec<Vec<usize>>>,
+    combinations: itertools::Combinations<itertools::Combinations<std::vec::IntoIter<usize>>>,
+    component_index: usize,
+}
 
-    fn next(solution: &mut Solution, prev: Option<(usize, usize)>) -> Option<(usize, usize)> {
-        let current_flip = match prev {
-            Some((prev_row, prev_col)) => {
-                solution.flip_edge(prev_row, prev_col);
+impl<const N: usize> NFlip<{ N }> {
+    fn next(solution: &mut Solution, prev: Option<StepData<{ N }>>) -> Option<StepData<{ N }>> {
+        let mut step_data = match prev {
+            None => {
+                let mut component_index = 0;
 
-                if prev_col == solution.edges.len() - 1 {
-                    (prev_row + 1, prev_row + 2)
-                } else {
-                    (prev_row, prev_col + 1)
+                while !(&N..&MAX_COMP_SIZE).contains(&&solution.connection_components[component_index]
+                    .indices
+                    .len())
+                {
+                    component_index += 1;
+
+                    if component_index == solution.connection_components.len() {
+                        return None;
+                    }
+                }
+
+
+                let comp = &solution.connection_components[component_index].indices;
+                let combinations = comp
+                    .clone()
+                    .into_iter()
+                    .combinations(2)
+                    .combinations(N);
+
+                StepData {
+                    prev_flips: None,
+                    combinations,
+                    component_index: 0,
                 }
             }
-            None => (0, 1),
+            Some(prev) => {
+                if let Some(ref prev_flips) = prev.prev_flips {
+                    for edge in prev_flips.iter() {
+                        solution.flip_edge(edge[0], edge[1]);
+                    }
+                }
+
+                prev
+            }
         };
 
-        if current_flip.0 == solution.edges.len() - 1 {
-            return None;
+        loop {
+            match step_data.combinations.next() {
+                Some(current_flip) => {
+                    for edge in current_flip.iter() {
+                        solution.flip_edge(edge[0], edge[1]);
+                    }
+
+                    step_data.prev_flips = Some(current_flip);
+
+                    return Some(step_data);
+                }
+                None => {
+                    step_data.component_index += 1;
+
+                    if step_data.component_index == solution.connection_components.len() {
+                        return None;
+                    }
+
+                    while !(&N..&MAX_COMP_SIZE).contains(&&solution.connection_components[step_data.component_index]
+                        .indices
+                        .len())
+                    {
+                        step_data.component_index += 1;
+
+                        if step_data.component_index == solution.connection_components.len() {
+                            return None;
+                        }
+                    }
+
+                    let comp = &solution.connection_components[step_data.component_index].indices;
+                    let combinations = comp
+                        .clone()
+                        .into_iter()
+                        .combinations(2)
+                        .combinations(N);
+
+                    step_data.combinations = combinations;
+                }
+            }
         }
-
-        solution.flip_edge(current_flip.0, current_flip.1);
-
-        return Some(current_flip);
     }
+
     fn random(solution: &mut Solution) -> (usize, usize) {
         let size = solution.edges.len() - 1;
         let row = rand::thread_rng().gen_range(0..size);

@@ -1,19 +1,19 @@
 use crate::{graph::Graph, solution::Solution, vnd::VND, construction::ConstructionHeuristic};
 
-pub struct GRASP {
-    construction_heuristic: Box<dyn for<'a> ConstructionHeuristic<'a>>,
+pub struct GRASP<'a> {
+    construction_heuristic: Box<dyn ConstructionHeuristic<'a>>,
     vnd: VND,
 }
 
-impl GRASP {
-    pub fn new<'a>(construction_heuristic: Box<dyn ConstructionHeuristic<'a>>, vnd: VND) -> Self {
+impl<'a> GRASP<'a> {
+    pub fn new(construction_heuristic: Box<dyn ConstructionHeuristic<'a>>, vnd: VND) -> Self {
         Self { construction_heuristic, vnd }
     }
 
-    pub fn run<'a>(&self, graph: &'a Graph) -> Solution<'a> {
+    pub fn run(&self, graph: &'a Graph) -> Solution<'a> {
         let mut best_solution = None;
 
-        for it in 0..3 {
+        for _ in 0..3 {
             let solution = self.construction_heuristic.construct(graph, true);
             let solution_candidate = self.vnd.run(solution);
 
