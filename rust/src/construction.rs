@@ -1,5 +1,5 @@
 use rand::seq::SliceRandom;
-use rand::thread_rng;
+use rand::Rng;
 
 use crate::{
     graph::Graph,
@@ -67,7 +67,7 @@ impl Greedy {
 
         let required_degree = comp.indices.len() as u32 - graph.s;
 
-        if avg_degree > self.threshold * required_degree as f32 || (self.random && rand::random()) {
+        if avg_degree > self.threshold * required_degree as f32 || (self.random && rand::thread_rng().gen_range(0..100) < 2) {
             self.add_edges(graph, solution, comp);
         } else {
             self.remove_edges(solution, &comp.indices);
