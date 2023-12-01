@@ -32,7 +32,6 @@ impl GVNS {
             if solution.cost < best.cost {
                 best = solution.clone();
                 k = 0;
-                println!("New best solution found: {}", best.cost);
             } else {
                 k = (k + 1) % self.shaking_neighborhoods.len();   
             }

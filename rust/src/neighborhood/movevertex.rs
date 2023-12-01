@@ -126,7 +126,14 @@ impl MoveVertex {
 
         // determine number of edges needed
         let needed_edges =
-            solution.connection_components[component].indices.len() - solution.graph.s as usize;
+            solution.connection_components[component].indices.len() as isize - solution.graph.s as isize;
+
+        if needed_edges <= 0 {
+            return edits;
+        }
+
+        let needed_edges = needed_edges as usize;
+
         let mut edges_added = 0;
 
         let mut new_edges = Vec::new();
@@ -153,6 +160,10 @@ impl MoveVertex {
 
             a_cost.partial_cmp(&b_cost).unwrap()
         });
+
+        if edges_added >= needed_edges {
+            return edits;
+        }
 
         // add edges until the component is connected
         new_edges

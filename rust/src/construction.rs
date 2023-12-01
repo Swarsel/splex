@@ -35,8 +35,8 @@ impl<'a> ConstructionHeuristic<'a> for Greedy {
             })
             .collect();
 
-        let mut connected_components = Graph::get_connection_components(&graph.initial);
-  
+        let connected_components = Graph::get_connection_components(&graph.initial);
+
         for comp in connected_components.iter() {
             self.repair_component(graph, &mut solution, comp);
         }
@@ -70,7 +70,7 @@ impl Greedy {
         if avg_degree > self.threshold * required_degree as f32 || (self.random && rand::random()) {
             self.add_edges(graph, solution, comp);
         } else {
-            self.remove_edges(graph, solution, &comp.indices);
+            self.remove_edges(solution, &comp.indices);
 
             // check if component has split
             let components =
@@ -102,13 +102,13 @@ impl Greedy {
         let min_degree = comp.len() as u32 - graph.s;
 
         for (_, i, j) in edges {
-            if solution.vertices[i].degree < min_degree {
+            if solution.vertices[i].degree < min_degree || solution.vertices[j].degree < min_degree {
                 solution.add_edge(i, j);
             }
         }
     }
 
-    fn remove_edges(&self, graph: &Graph, solution: &mut Solution, comp: &Vec<usize>) {
+    fn remove_edges(&self, solution: &mut Solution, comp: &Vec<usize>) {
         // find vertex with minimum degree >= 2
         let mut min_degree_index = None;
         let mut min_degree = u32::MAX;
@@ -121,21 +121,12 @@ impl Greedy {
             }
         }
 
-        // remove all but the most expensive edge
+        // remove all edges
         if let Some(min_degree_index) = min_degree_index {
-            let mut edges = vec![];
-
             for i in 0..solution.edges.len() {
                 if *solution.edges.get(min_degree_index, i) {
-                    edges.push((graph.weights.get(min_degree_index, i), min_degree_index, i));
+                    solution.flip_edge(min_degree_index, i);
                 }
-            }
-
-            edges.sort_by(|a, b| b.0.cmp(&a.0));
-            edges.pop();
-
-            for (_, i, j) in edges {
-                solution.remove_edge(i, j);
             }
         }
     }

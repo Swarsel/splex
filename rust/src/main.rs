@@ -88,7 +88,7 @@ fn main() {
         let start = std::time::Instant::now();
         let best = gvns.run(
             solution, 
-            TimedStoppingCriterion::new(Duration::from_secs(60 * 15))
+            TimedStoppingCriterion::new(Duration::from_secs(10))
         );
         // let best = vnd.run(solution);
         // let best = grasp.run(&graph);

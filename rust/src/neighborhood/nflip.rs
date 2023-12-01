@@ -5,7 +5,7 @@ use rand::Rng;
 
 use itertools::Itertools;
 
-const MAX_COMP_SIZE: usize = 30;
+const MAX_COMP_SIZE: usize = 60;
 
 /// Looks at all neighbors with N flips inside a single splex
 pub struct NFlip<const N: usize>;
