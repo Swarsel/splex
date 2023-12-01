@@ -44,8 +44,8 @@ impl Neighborhood for MoveVertex {
             StepFunction::RandomChoice => {
                 let mut rng = rand::thread_rng();
 
-                let vertex = rng.gen_range(0 .. solution.edges.len());
-                let mut component = rng.gen_range(0 .. solution.connection_components.len());
+                let vertex = rng.gen_range(0..solution.edges.len());
+                let mut component = rng.gen_range(0..solution.connection_components.len());
                 if solution.connection_components[component]
                     .indices
                     .contains(&vertex)
@@ -54,8 +54,9 @@ impl Neighborhood for MoveVertex {
                 }
 
                 MoveVertex::move_vertex(solution, vertex, component);
-
-                found = true;
+                if sol.is_valid() {
+                    found = true;
+                }
             }
         }
 
@@ -125,8 +126,8 @@ impl MoveVertex {
         }
 
         // determine number of edges needed
-        let needed_edges =
-            solution.connection_components[component].indices.len() as isize - solution.graph.s as isize;
+        let needed_edges = solution.connection_components[component].indices.len() as isize
+            - solution.graph.s as isize;
 
         if needed_edges <= 0 {
             return edits;
