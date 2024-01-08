@@ -23,6 +23,17 @@
         toolchain
         rust-analyzer-unwrapped
         rust-analyzer
+        (pkgs.python3.withPackages (python-pkgs: [
+          python-pkgs.numpy
+          python-pkgs.pandas
+          python-pkgs.scipy
+          python-pkgs.matplotlib
+          python-pkgs.networkx
+          python-pkgs.debugpy
+          python-pkgs.flake8
+          python-pkgs.gnureadline
+          python-pkgs.python-lsp-server
+        ]))
       ];
       env = {
         RUST_BACKTRACE = "full";
