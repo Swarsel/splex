@@ -58,13 +58,13 @@ class Solution:
         shuffle(components)
         for component in components:
             if not self.is_feasible_component(component):
-                self.repair_component(component)
+                self.repair_component(component, construct=True)
 
-    def repair_component(self, component, threshold=0.7):
+    def repair_component(self, component, construct=False, threshold=0.7):
         required_degree = self.get_component_required_degree(component)
         avg_degree = self.graph.get_component_avg_degree_from_component(component)
         if avg_degree > threshold * required_degree:
-            self.add_edges(component)
+            self.add_edges(component, construct=construct)
 
     def add_edge(self, i, j):
         if not self.graph.get_edge_status(i, j):
@@ -95,8 +95,11 @@ class Solution:
             self.graph.remove_edge(i, j)
             self.update_splex_in_component(self.graph.node_component[i])
 
-    def add_edges(self, component):
-        while not self.is_feasible_component(component):
+    def add_edges(self, component_set, construct=False):
+        while not self.is_feasible_component(component_set):
+            if construct:
+                component = list(component_set)
+                shuffle(component)
             for node in component:
                 while not self.is_feasible_node(node):
                     # print(f"Checking node {node}, has degree {self.graph.get_node_degree(node)}, requred {self.get_component_required_degree(component)}")
