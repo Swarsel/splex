@@ -2,3 +2,4 @@
 rust/target/
 rust/out.txt
 .envrc
+python/__pycache__/

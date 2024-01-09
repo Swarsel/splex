@@ -11,8 +11,8 @@ class Instance:
         self.edges = []
         self.initial_edges = []
         self.missing_edges = []
-        self.connected = np.zeros((n, n))
-        self.weights = np.zeros((n, n))
+        self.connected = np.zeros((n, n), dtype=int)
+        self.weights = np.zeros((n, n), dtype=int)
         edges.sort()
         for (i, j, e, w) in edges:
             if e:
@@ -29,7 +29,7 @@ class Instance:
         self.edges.sort()
 
     def get_edge_status(self, i, j):
-        return self.connected[i - 1, j - 1] == 1
+        return self.connected[i - 1, j - 1]
 
     def get_edge_weight(self, i, j):
         return self.weights[i - 1, j - 1]

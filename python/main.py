@@ -1,9 +1,11 @@
 from input import read_input
 from graph import Graph
+from solution import Solution
 
-instance = read_input("../instances/test_instances/heur002_n_100_m_3274.txt")
+instance = read_input("../instances/test_instances/heur001_n_10_m_31.txt")
 
 graph = Graph(instance)
-print(graph.get_node_component(1))
-print()
-print(graph.get_edges())
+solution = Solution(instance)
+components = list(graph.get_components())
+for component in components:
+    print(solution.is_feasible_component(component))
