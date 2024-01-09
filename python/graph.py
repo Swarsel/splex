@@ -7,8 +7,8 @@ class Graph:
     def __init__(self, instance: Instance):
         self.n = instance.n
         self.instance = instance
-        self.edges = np.copy(instance.edges)
-        self.connected = np.copy(instance.connected)
+        self.edges = instance.edges.copy()
+        self.connected = instance.connected.copy()
         self.node_neighbors = {node: self.compute_node_neighbors(node) for node in range(1, instance.n+1)}
         self.node_component = {node: self.compute_component(node) for node in range(1, instance.n+1)}
         self.node_degree = self.compute_node_degrees()
@@ -25,6 +25,22 @@ class Graph:
     def get_possible_node_connections(self, i):
         return [edge for edge in self.edges if (edge[1] == i or edge[2] == i)]
 
+    def get_possible_node_connections_in_component(self, i):
+        return [edge for edge in self.edges if ((edge[1] in self.node_component[i] and edge[2] in self.node_component[i]) and (edge[1] == i or edge[2] == i))]
+
+    def get_missing_connections(self, edges):
+        out = []
+        for edge in edges:
+            if not self.get_edge_status(edge[1], edge[2]):
+                out.append(edge)
+        return sorted(out)
+
+    def get_existing_connections(self, edges):
+        out = []
+        for edge in edges:
+            if self.get_edge_status(edge[1], edge[2]):
+                out.append(edge)
+        return sorted(out, reverse=True)
 
     def get_components(self):
         components = []
@@ -41,13 +57,13 @@ class Graph:
         degree_sum = self.get_node_degree(i)
         for node in component:
             degree_sum += self.get_node_degree(node)
-        return degree_sum / component.len()
+        return degree_sum / len(component)
 
     def get_component_avg_degree_from_component(self, component):
         degree_sum = 0
         for node in component:
             degree_sum += self.get_node_degree(node)
-        return degree_sum / component.len()
+        return degree_sum / len(component)
 
     def get_component_min_degree_from_node(self, i):
         component = self.get_node_component(i)
@@ -102,7 +118,7 @@ class Graph:
         return neighbors
 
     def compute_node_degrees(self):
-        degree_tracker = np.ones(self.n)
+        degree_tracker = np.ones(self.n, dtype=int)
         for i in range(1, self.n + 1):
             degree_tracker[i - 1] += len(self.node_neighbors[i])
         return degree_tracker

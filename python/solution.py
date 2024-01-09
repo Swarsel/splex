@@ -29,7 +29,13 @@ class Solution:
         return True
 
     def is_feasible_node(self, i):
-        return self.graph.get_node_degree(i) >= len(self.graph.get_node_component(i)) - self.instance.s
+        return self.node_splex[i - 1]
+
+    def is_now_feasible_node(self, i):
+        if self.graph.get_node_degree(i) >= len(self.graph.get_node_component(i)) - self.instance.s:
+            self.node_splex[i - 1] = 1
+            return True
+        return False
 
     def get_component_required_degree(self, component):
         return len(component) - self.instance.s
@@ -41,9 +47,9 @@ class Solution:
         return True
 
     def set_feasible_nodes(self):
-        splex_tracker = np.zeros(self.instance.n)
+        splex_tracker = np.zeros(self.instance.n, dtype=int)
         for node in range(1, self.instance.n + 1):
-            if self.is_feasible_node(node):
+            if self.graph.get_node_degree(node) >= len(self.graph.get_node_component(node)) - self.instance.s:
                 splex_tracker[node - 1] = 1
         return splex_tracker
 
@@ -52,13 +58,13 @@ class Solution:
         shuffle(components)
         for component in components:
             if not self.is_feasible_component(component):
-                self.graph.repair_component(component)
+                self.repair_component(component)
 
     def repair_component(self, component, threshold=0.7):
         required_degree = self.get_component_required_degree(component)
         avg_degree = self.graph.get_component_avg_degree_from_component(component)
         if avg_degree > threshold * required_degree:
-            self.graph.add_edges(component)
+            self.add_edges(component)
 
     def add_edge(self, i, j):
         if not self.graph.get_edge_status(i, j):
@@ -67,6 +73,18 @@ class Solution:
             else:
                 self.cost += abs(self.instance.weights[i - 1][j - 1])
             self.graph.add_edge(i, j)
+            self.update_splex_in_component(self.graph.node_component[i])
+
+    def update_splex_in_component(self, component):
+        # print(f"Updating splex for component {component}")
+        for node in component:
+            # print(f"Updating node {node}, ...", end="")
+            if self.is_now_feasible_node(node):
+                # print("feasible")
+                self.node_splex[node - 1] = 1
+            else:
+                # print("not feasible")
+                self.node_splex[node - 1] = 0
 
     def remove_edge(self, i, j):
         if self.graph.get_edge_status(i, j):
@@ -75,12 +93,26 @@ class Solution:
             else:
                 self.cost += abs(self.instance.weights[i - 1][j - 1])
             self.graph.remove_edge(i, j)
+            self.update_splex_in_component(self.graph.node_component[i])
 
     def add_edges(self, component):
         while not self.is_feasible_component(component):
             for node in component:
-                pass
+                while not self.is_feasible_node(node):
+                    # print(f"Checking node {node}, has degree {self.graph.get_node_degree(node)}, requred {self.get_component_required_degree(component)}")
+                    pool_full = self.graph.get_missing_connections(self.get_possible_full_non_splex_node_connections_in_component(node))
+                    pool = self.graph.get_missing_connections(self.get_possible_non_splex_node_connections_in_component(node))
+                    # print(pool)
+                    edge_member_1, edge_member_2 = pool[0][1], pool[0][2]
+                    if pool_full and abs(pool_full[0][0]) <=pool[0][0]:
+                        edge_member_1, edge_member_2 = pool_full[0][1], pool_full[0][2]
+                    self.add_edge(edge_member_1, edge_member_2)
 
+    def get_possible_full_non_splex_node_connections_in_component(self, i):
+        return [edge for edge in self.graph.get_possible_node_connections_in_component(i) if (not self.node_splex[edge[1] - 1] and not self.node_splex[edge[2] - 1])]
+
+    def get_possible_non_splex_node_connections_in_component(self, i):
+        return [edge for edge in self.graph.get_possible_node_connections_in_component(i) if (not self.node_splex[edge[1] - 1] or not self.node_splex[edge[2] - 1])]
 
     def __str__(self):
         return f"Solution cost: {self.cost}"
