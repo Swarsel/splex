@@ -110,6 +110,12 @@ class Solution:
                 # print("not feasible")
                 self.node_splex[node - 1] = 0
 
+    def flip_edge(self, i, j):
+        if self.graph.get_edge_status(i, j):
+            self.graph.remove_edge(i, j)
+        else:
+            self.graph.add_edge(i, j)
+
     def remove_edge(self, i, j):
         if self.graph.get_edge_status(i, j):
             if self.edge_differs_from_initial(i, j):

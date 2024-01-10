@@ -13,7 +13,11 @@ class Instance:
         self.missing_edges = []
         self.connected = np.zeros((n, n), dtype=int)
         self.weights = np.zeros((n, n), dtype=int)
-        self.parameters = {"threshold": 0.8, "penalty": 10, "selection_size": 0.7, "offspring_ratio": 0.9}
+        self.parameters = {"threshold": 0.8,
+                           "penalty": 10,
+                           "selection_size": 0.7,
+                           "offspring_ratio": 0.9,
+                           "mutation_chance": 0.01}
         self.init_edges(edges)
 
     def init_edges(self, edges):

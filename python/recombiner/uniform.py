@@ -7,6 +7,7 @@ from instance import Instance
 from solution import Solution
 from recombiner.recombiner import Recombiner
 
+
 class UniformCrossoverRecombiner(Recombiner, ABC):
 
     def recombine(self, instance: Instance, population: list[Solution], size: int) -> list[Solution]:
