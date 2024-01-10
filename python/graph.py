@@ -80,6 +80,15 @@ class Graph:
                 degree_min = self.get_node_degree(node)
         return degree_min
 
+    def get_component_min_degree_node_from_component(self, component):
+        degree_min = len(component)
+        node = None
+        for node in component:
+            if self.get_node_degree(node) < degree_min:
+                degree_min = self.get_node_degree(node)
+                node = node
+        return node
+
     def get_node_neighbors(self, i):
         return self.node_neighbors[i]
 
