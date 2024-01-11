@@ -8,7 +8,8 @@ def read_input(filename):
         name = str(filename)
         line = file.readline()
         (s, n, _, _) = list(map(int, line.strip().split()))
-        while line := file.readline():
+        lines = file.readlines()
+        for line in lines:
             edges.append(list(map(int, line.strip().split())))
         #print(edges)
         return Instance(name, s, n, edges)
