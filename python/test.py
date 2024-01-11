@@ -4,17 +4,18 @@ from selector.RankSelector import RankSelector
 from recombiner.uniform import UniformCrossoverRecombiner
 from mutator.edgemutate import EdgeMutator
 import matplotlib.pyplot as plt
-
+from solution import Solution
 
 instance = read_input("../instances/test_instances/heur002_n_100_m_3274.txt")
 
-GA = GeneticAlgorithm(instance,
-                      RankSelector(),
-                      UniformCrossoverRecombiner(),
-                      EdgeMutator(),
-                      n_pop=100)
-
-print(GA)
+# GA = GeneticAlgorithm(instance,
+#                       RankSelector(),
+#                       UniformCrossoverRecombiner(),
+#                       EdgeMutator(),
+#                       n_pop=100)
+solution = Solution(instance)
+solution.construct()
+print(solution)
 # GA.next_n_generations(10)
 # print(GA.get_best_member())
 # iterations = [it for it in range(5)]
