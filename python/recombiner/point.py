@@ -31,6 +31,6 @@ class PointCrossoverRecombiner(Recombiner, ABC):
                         else:
                             kid.remove_edge(i, j)
                     at_point += 1
-            kid.construct()
+            # kid.construct()
             out.append(kid)
         return out

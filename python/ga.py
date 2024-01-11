@@ -40,7 +40,9 @@ class GeneticAlgorithm:
         while len(kids) < self.n_pop:
             kids.append(selected[i])
             i += 1
-        population = self.mutator.mutate(self.instance, kids)
+        population: list[Solution] = self.mutator.mutate(self.instance, kids)
+        with multiprocessing.Pool() as p:
+            population = p.map(construct_solution, population)
         population.sort()
         self.population = population
         self.generation += 1
@@ -56,5 +58,9 @@ class GeneticAlgorithm:
 
 def generate_solution(instance):
     solution = Solution(instance)
+    solution.construct()
+    return solution
+
+def construct_solution(solution):
     solution.construct()
     return solution

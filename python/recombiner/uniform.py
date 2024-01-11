@@ -28,6 +28,6 @@ class UniformCrossoverRecombiner(Recombiner, ABC):
                             kid.add_edge(i, j)
                         else:
                             kid.remove_edge(i, j)
-            kid.construct()
+            # kid.construct()
             out.append(kid)
         return out
