@@ -30,19 +30,25 @@ class GeneticAlgorithm:
         out.sort()
         return out
 
+    def next_n_generations(self, n):
+        for _ in range(n):
+            self.next_generation()
+
     def next_generation(self):
         selected = self.selector.select(self.instance, self.population, self.n_pop)
         # kids = self.recombiner.recombine(self.instance, selected, self.n_pop)
         kids = self.recombiner.recombine(self.instance, selected, self.n_pop)
-        i = 1
-        while len(kids) < self.n_pop - 1:
+        i = 0
+        while len(kids) < self.n_pop:
             kids.append(selected[i])
             i += 1
         population = self.mutator.mutate(self.instance, kids)
-        population.append(selected[0])
         population.sort()
         self.population = population
         self.generation += 1
+
+    def get_best_member(self):
+        return self.population[0].cost
 
     def __str__(self):
         out = f"Population Size: {self.n_pop}\n"

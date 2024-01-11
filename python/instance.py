@@ -14,11 +14,18 @@ class Instance:
         self.connected = np.zeros((n, n), dtype=int)
         self.weights = np.zeros((n, n), dtype=int)
         self.parameters = {"threshold": 0.8,
+                           "popsize": 10,
                            "penalty": 10,
                            "selection_size": 0.7,
                            "offspring_ratio": 0.9,
-                           "mutation_chance": 0.01}
+                           "mutation_chance": 0.02}
         self.init_edges(edges)
+
+    def set_parameter(self, parameter_name, value):
+        self.parameters[parameter_name] = value
+
+    def get_parameter(self, parameter_name):
+        return self.parameter[parameter_name]
 
     def init_edges(self, edges):
         edges.sort()
