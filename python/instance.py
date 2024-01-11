@@ -25,7 +25,7 @@ class Instance:
         self.parameters[parameter_name] = value
 
     def get_parameter(self, parameter_name):
-        return self.parameter[parameter_name]
+        return self.parameters[parameter_name]
 
     def init_edges(self, edges):
         edges.sort()

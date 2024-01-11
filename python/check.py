@@ -12,19 +12,21 @@ tunables = instance.parameters
 
 iterations = 10
 gens = 7
-best = 0
-for _ in range(iterations):
-    GA = GeneticAlgorithm(instance,
-                          RankSelector(),
-                          UniformCrossoverRecombiner(),
-                          EdgeMutator(),
-                          n_pop=instance.parameters["popsize"])
-    GA.next_n_generations(7)
-    best += GA.get_best_member()
-print(best / iterations)
+best = 4600
+# for _ in range(iterations):
+#     GA = GeneticAlgorithm(instance,
+#                           RankSelector(),
+#                           UniformCrossoverRecombiner(),
+#                           EdgeMutator(),
+#                           n_pop=instance.parameters["popsize"])
+    # GA.next_n_generations(7)
+    # best += GA.get_best_member()
+# print(best / iterations)
 
 for key in tunables.keys():
-    instance.set_parameter[key] *= 1.05
+    print(f"Checking {key}")
+    before = instance.get_parameter(key)
+    instance.set_parameter(key, before * 1.05)
     best = 0
     for _ in range(iterations):
         GA = GeneticAlgorithm(instance,
@@ -34,4 +36,5 @@ for key in tunables.keys():
                               n_pop=instance.parameters["popsize"])
         GA.next_n_generations(7)
         best += GA.get_best_member()
-        print(f"{key} changed to {instance.get_parameter[key]}, yielded  {best / iterations}")
+    print(f"{key} changed to {instance.get_parameter(key)}, yielded  {best / iterations}")
+    instance.set_parameter(key, before)
