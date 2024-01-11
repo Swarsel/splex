@@ -24,7 +24,7 @@ best = 4600
 # print(best / iterations)
 
 for key in tunables.keys():
-    print("Checking" + str(key))
+    print(f"Checking {key}")
     before = instance.get_parameter(key)
     instance.set_parameter(key, before * 1.05)
     best = 0
@@ -36,5 +36,5 @@ for key in tunables.keys():
                               n_pop=instance.parameters["popsize"])
         GA.next_n_generations(7)
         best += GA.get_best_member()
-    print(str(instance.get_parameter(key)), "yielded", str(best / iterations))
+    print(f"{key} changed to {instance.get_parameter(key)}, yielded  {best / iterations}")
     instance.set_parameter(key, before)
