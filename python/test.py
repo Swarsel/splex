@@ -6,6 +6,7 @@ from mutator.edgemutate import EdgeMutator
 import matplotlib.pyplot as plt
 from solution import Solution
 
+instance = read_input("/home1/hot01427399/splex/instances/test_instances/heur002_n_100_m_3274.txt")
 instance = read_input("../instances/test_instances/heur002_n_100_m_3274.txt")
 
 GA = GeneticAlgorithm(instance,
