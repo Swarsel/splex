@@ -171,7 +171,7 @@ class Solution:
         return self.cost < other.cost
 
     def __repr__(self):
-        return f"{self.cost} ({self.fitness})"
+        return "str(self.cost) (" + str(self.fitness) + ")"
 
     def __str__(self):
-        return f"Solution cost: {self.cost}"
+        return "Solution cost: " + str(self.cost)
