@@ -78,6 +78,7 @@ class Solution:
                 # print(self.graph.get_node_neighbors(testlist[0]))
                 if not self.is_feasible_component(component):
                     work_component = component
+                    break
             self.repair_component(work_component, construct=True)
 
     def repair_component(self, component, construct=False):

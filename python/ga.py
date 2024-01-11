@@ -3,7 +3,7 @@ from instance import Instance
 from selector.selector import Selector
 from recombiner.recombiner import Recombiner
 from mutator.mutator import Mutator
-
+import multiprocessing
 
 class GeneticAlgorithm:
 
@@ -22,11 +22,9 @@ class GeneticAlgorithm:
         self.mutator = mutator
 
     def make_population(self):
-        out = []
-        for _ in range(self.n_pop):
-            new = Solution(self.instance)
-            new.construct()
-            out.append(new)
+        # for _ in range(self.n_pop):
+        with multiprocessing.Pool() as p:
+            out = p.map(generate_solution, [self.instance for _ in range(self.n_pop)])
         out.sort()
         return out
 
@@ -55,3 +53,8 @@ class GeneticAlgorithm:
         out += f"Generation: {self.generation}\n"
         out += f"Population Top5: {self.population[:5]}\nBottom5: {self.population[-5:]}"
         return out
+
+def generate_solution(instance):
+    solution = Solution(instance)
+    solution.construct()
+    return solution
