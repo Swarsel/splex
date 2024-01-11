@@ -58,9 +58,9 @@ class Instance:
     def get_initial_edges(self):
         return self.initial_edges
 
-    def __str__(self):
-        out = ""
-        out += f"Instance: {self.name}\n"
-        out += f"s: {self.s}\n"
-        out += f"n: {self.n}\n"
-        return out
+    # def __str__(self):
+    #     out = ""
+    #     out += f"Instance: {self.name}\n"
+    #     out += f"s: {self.s}\n"
+    #     out += f"n: {self.n}\n"
+    #     return out
