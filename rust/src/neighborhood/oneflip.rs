@@ -44,6 +44,7 @@ impl Neighborhood for OneFlip {
                     }
                 }
             }
+            StepFunction::Skip => {}
         }
 
         solution.recalculate_connection_components();

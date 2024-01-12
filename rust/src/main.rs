@@ -11,6 +11,7 @@ mod symmat;
 mod vnd;
 mod gvns;
 mod stoppingcriterion;
+mod hybrid;
 
 use crate::construction::{ConstructionHeuristic, Greedy};
 use crate::grasp::GRASP;
@@ -58,15 +59,15 @@ fn main() {
 
     let total = std::time::Instant::now();
 
-    for i in 49..=49 {
+    for i in 22..=22 {
         println!("Graph: {}", i);
 
         let graph = load_graph(i);
 
         let vnd = VND::new(
             vec![
-                    (Box::new(OneFlip), StepFunction::FirstImprovement),
                     (Box::new(MoveVertex), StepFunction::BestImprovement),
+                    (Box::new(OneFlip), StepFunction::BestImprovement),
                     (Box::new(NFlip::<3>), StepFunction::FirstImprovement),
                 ],
         ); 
@@ -75,12 +76,11 @@ fn main() {
             vec![
                 Box::new(MoveNVertices::<8>),
                 Box::new(PlexDissolve),
-                Box::new(PlexDissolve),
                 Box::new(PlexJoin),
             ]);
             
 
-        // let grasp = GRASP::new(Box::new(Greedy::new(0.7)), vnd);
+        // let grasp = GRASP::new(Box::new(Greedy::new(0.7, true)), vnd);
 
         let solution = Greedy::new(0.7, false).construct(&graph);
         println!("Initial solution: {}", solution.cost);
@@ -88,7 +88,7 @@ fn main() {
         let start = std::time::Instant::now();
         let best = gvns.run(
             solution, 
-            TimedStoppingCriterion::new(Duration::from_secs(10))
+            TimedStoppingCriterion::new(Duration::from_secs(2))
         );
         // let best = vnd.run(solution);
         // let best = grasp.run(&graph);

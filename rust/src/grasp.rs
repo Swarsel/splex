@@ -13,8 +13,14 @@ impl<'a> GRASP<'a> {
     pub fn run(&self, graph: &'a Graph) -> Solution<'a> {
         let mut best_solution = None;
 
-        for _ in 0..3 {
-            let solution = self.construction_heuristic.construct(graph);
+        for _ in 0..1 {
+            let mut solution = self.construction_heuristic.construct(graph);
+
+            solution.recalculate_connection_components();
+            solution.recalculate_degrees();
+
+            assert!(solution.is_valid());
+
             let solution_candidate = self.vnd.run(solution);
 
             match best_solution {

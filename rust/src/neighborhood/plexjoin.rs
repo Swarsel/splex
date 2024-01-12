@@ -33,6 +33,7 @@ impl Neighborhood for PlexJoin {
 
                 true
             },
+            StepFunction::Skip => unimplemented!(),
         }
     }
 }

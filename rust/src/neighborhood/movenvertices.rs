@@ -21,6 +21,7 @@ impl<const N: usize> Neighborhood for MoveNVertices<N> {
 
                 true
             },
+            StepFunction::Skip => unimplemented!(),
         }
     }
 }

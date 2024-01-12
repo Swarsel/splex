@@ -2,6 +2,7 @@ use crate::solution::ConnectionComponent;
 use crate::symmat::SymMat;
 use std::fmt::{Debug, Formatter};
 
+#[derive(Clone)]
 pub struct Graph {
     pub s: u32,
     pub initial: SymMat<bool>,
@@ -84,7 +85,7 @@ impl Graph {
         components
     }
 
-    fn adjacent(adjacency: &SymMat<bool>, id: usize) -> Vec<usize> {
+    pub fn adjacent(adjacency: &SymMat<bool>, id: usize) -> Vec<usize> {
         let mut result = vec![];
 
         for index in 0..adjacency.len() {
@@ -94,5 +95,24 @@ impl Graph {
         }
 
         result
+    }
+
+    /// create a subgraph containing only the vertices in the given list
+    pub fn subgraph(&self, vertices: &Vec<usize>) -> Graph {
+        let mut result = SymMat::new(vertices.len());
+        let mut weights = SymMat::new(vertices.len());
+
+        for (row, &vertex) in vertices.iter().enumerate() {
+            for (col, &other) in vertices.iter().enumerate() {
+                result.set(row, col, *self.initial.get(vertex, other));
+                weights.set(row, col, *self.weights.get(vertex, other));
+            }
+        }
+
+        Graph {
+            s: self.s,
+            initial: result,
+            weights: self.weights.clone(),
+        }
     }
 }

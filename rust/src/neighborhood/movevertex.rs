@@ -58,6 +58,7 @@ impl Neighborhood for MoveVertex {
                     found = true;
                 }
             }
+            StepFunction::Skip => {}
         }
 
         solution.recalculate_connection_components();

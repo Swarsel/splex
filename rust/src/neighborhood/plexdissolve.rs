@@ -28,6 +28,7 @@ impl Neighborhood for PlexDissolve {
 
                 true
             },
+            StepFunction::Skip => unimplemented!(),
         }
     }
 }

@@ -71,7 +71,22 @@ impl<'a> Solution<'a> {
         self.connection_components = Graph::get_connection_components(&self.edges);
     }
 
+    pub fn recalculate_degrees(&mut self) {
+        for (index, vertex) in self.vertices.iter_mut().enumerate() {
+            vertex.degree = 0;
+            for adjacent in Graph::adjacent(&self.edges, index) {
+                if *self.edges.get(index, adjacent) {
+                    vertex.degree += 1;
+                }
+            }
+        }
+    } 
+
     pub fn remove_edge(&mut self, row: usize, col: usize) {
+        if !*self.edges.get(row, col) {
+            return;
+        }
+
         self.vertices[row].degree -= 1;
         self.vertices[col].degree -= 1;
 
@@ -85,6 +100,10 @@ impl<'a> Solution<'a> {
     }
 
     pub fn add_edge(&mut self, row: usize, col: usize) {
+        if *self.edges.get(row, col) {
+            return;
+        }
+
         self.vertices[row].degree += 1;
         self.vertices[col].degree += 1;
 

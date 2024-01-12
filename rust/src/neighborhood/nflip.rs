@@ -50,6 +50,7 @@ impl<const N: usize> Neighborhood for NFlip<{ N }> {
                 //     }
                 // }
             }
+            StepFunction::Skip => {}
         }
 
         found
