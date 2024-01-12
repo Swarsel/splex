@@ -39,7 +39,7 @@ class GeneticAlgorithm:
         # kids = self.recombiner.recombine(self.instance, selected, self.n_pop)
         time1 = time()
         kids = self.recombiner.recombine(self.instance, selected, self.n_pop)
-        print(f"after recombine {time1 - time}")
+        # print(f"after recombine {time1 - time()}")
         i = 0
         while len(kids) < self.n_pop:
             kids.append(selected[i])
@@ -47,11 +47,11 @@ class GeneticAlgorithm:
 
         time1 = time()
         population: list[Solution] = self.mutator.mutate(self.instance, kids)
-        print(f"after mutation {time1 - time}")
+        # print(f"after mutation {time1 - time()}")
         time1 = time()
-        with multiprocessing.Pool() as p:
-            population = p.map(construct_solution, population)
-        print(f"after repairing {time1 - time}")
+        # with multiprocessing.Pool() as p:
+            # population = p.map(construct_solution, population)
+        # print(f"after repairing {time1 - time()}")
         population.sort()
         self.population = population
         self.generation += 1

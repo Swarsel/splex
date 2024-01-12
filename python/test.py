@@ -14,10 +14,10 @@ GA = GeneticAlgorithm(instance,
                       RankSelector(),
                       UniformCrossoverRecombiner(),
                       EdgeMutator(),
-                      n_pop=1)
+                      n_pop=10)
 print(GA)
-# GA.next_generation()
-# print(GA)
+GA.next_generation()
+print(GA)
 # GA.next_n_generations(10)
 # print(GA.get_best_member())
 # iterations = [it for it in range(5)]

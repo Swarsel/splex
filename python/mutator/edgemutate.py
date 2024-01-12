@@ -15,5 +15,5 @@ class EdgeMutator(Mutator, ABC):
                 for j in range(i + 1, instance.n + 1):
                     if random() < instance.parameters["mutation_chance"]:
                         pop.flip_edge(i, j)
-            # pop.construct()
+            pop.construct()
         return population

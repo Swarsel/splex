@@ -85,10 +85,10 @@ class Solution:
         required_degree = self.get_component_required_degree(component)
         avg_degree = self.graph.get_component_avg_degree_from_component(component)
         if avg_degree > self.instance.parameters["threshold"] * required_degree or randint(0, 1) == 1:
-            print(f"Adding edges to {component}")
+            # print(f"Adding edges to {component}")
             self.add_edges(component, construct=construct)
         else:
-            print(f"Removing edges to {component}")
+            # print(f"Removing edges to {component}")
             self.remove_edges(component, construct=construct)
 
     def add_edge(self, i, j):
