@@ -85,10 +85,10 @@ class Solution:
         required_degree = self.get_component_required_degree(component)
         avg_degree = self.graph.get_component_avg_degree_from_component(component)
         if avg_degree > self.instance.parameters["threshold"] * required_degree or randint(0, 1) == 1:
-            # print(f"Adding edges to {component}")
+            print(f"Adding edges to {component}")
             self.add_edges(component, construct=construct)
         else:
-            # print(f"Removing edges to {component}")
+            print(f"Removing edges to {component}")
             self.remove_edges(component, construct=construct)
 
     def add_edge(self, i, j):
@@ -139,22 +139,26 @@ class Solution:
         Check pool of edge pairs that are both not in splex status first, if those are cheaper than splex-non-splex pairs, create those edges, otherwise create conservative edges
         '''
         if not self.is_feasible_component(component_set):
-            changes = False
+            changes = 0
+            component = list(component_set)
             if construct:
-                component = list(component_set)
                 shuffle(component)
+            len_component = len(component)
             for node in component:
+                i = 0
+                pool = self.graph.get_missing_connections(self.get_possible_non_splex_node_connections_in_component(node))
                 while not self.is_feasible_node(node):
                     # print(f"Checking node {node}, has degree {self.graph.get_node_degree(node)}, requred {self.get_component_required_degree(component)}")
-                    pool_full = self.graph.get_missing_connections(self.get_possible_full_non_splex_node_connections_in_component(node))
-                    pool = self.graph.get_missing_connections(self.get_possible_non_splex_node_connections_in_component(node))
+                    # pool_full = self.graph.get_missing_connections(self.get_possible_full_non_splex_node_connections_in_component(node))
+                    # pool = self.graph.get_missing_connections(self.get_possible_non_splex_node_connections_in_component(node))
                     # print(pool)
-                    edge_member_1, edge_member_2 = pool[0][1], pool[0][2]
-                    if pool_full and abs(pool_full[0][0]) <=pool[0][0]:
-                        edge_member_1, edge_member_2 = pool_full[0][1], pool_full[0][2]
+                    edge_member_1, edge_member_2 = pool[i][1], pool[i][2]
+                    # if pool_full and abs(pool_full[0][0]) <=pool[0][0]:
+                        # edge_member_1, edge_member_2 = pool_full[0][1], pool_full[0][2]
                     self.add_edge(edge_member_1, edge_member_2)
-                    changes = True
-                if changes:
+                    changes += 1
+                    i += 1
+                if changes > len_component:
                     break
 
     def get_possible_full_non_splex_node_connections_in_component(self, i):

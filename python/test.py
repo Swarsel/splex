@@ -6,17 +6,18 @@ from mutator.edgemutate import EdgeMutator
 import matplotlib.pyplot as plt
 from solution import Solution
 
-instance = read_input("/home1/hot01427399/splex/instances/test_instances/heur002_n_100_m_3274.txt")
-instance = read_input("../instances/test_instances/heur002_n_100_m_3274.txt")
+# instance = read_input("/home1/hot01427399/splex/instances/tuning_instances/heur040_n_300_m_13358.txt")
+# instance2 = read_input("/home1/hot01427399/splex/instances/tuning_instances/heur040_n_300_m_13358.txt")
+instance = read_input("../instances/tuning_instances/heur044_n_300_m_3234.txt")
 
 GA = GeneticAlgorithm(instance,
                       RankSelector(),
                       UniformCrossoverRecombiner(),
                       EdgeMutator(),
-                      n_pop=100)
+                      n_pop=1)
 print(GA)
-GA.next_generation()
-print(GA)
+# GA.next_generation()
+# print(GA)
 # GA.next_n_generations(10)
 # print(GA.get_best_member())
 # iterations = [it for it in range(5)]

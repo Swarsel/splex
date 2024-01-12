@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 instance = read_input("/home1/hot01427399/splex/instances/tuning_instances/heur040_n_300_m_13358.txt")
 instance2 = read_input("/home1/hot01427399/splex/instances/tuning_instances/heur040_n_300_m_13358.txt")
-#instance = read_input("../instances/test_instances/heur002_n_100_m_3274.txt")
+# instance = read_input("../instances/tuning_instances/heur044_n_300_m_3234.txt")
 
 tunables = list(instance.parameters.keys())
 
