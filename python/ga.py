@@ -60,6 +60,13 @@ class GeneticAlgorithm:
     def get_best_member(self):
         return self.population[0].cost
 
+    def get_mean_member(self):
+        sum = 0
+        for pop in self.population:
+            sum += pop.cost
+        sum /= self.n_pop
+        return sum
+
     def __str__(self):
         out = f"Population Size: {self.n_pop}\n"
         out += f"Generation: {self.generation}\n"

@@ -11,9 +11,10 @@ import multiprocessing
 class UniformCrossoverRecombiner(Recombiner, ABC):
 
     def recombine(self, instance: Instance, population: list[Solution], size: int) -> list[Solution]:
-        num_offspring = math.ceil(instance.parameters["offspring_ratio"] * size)
+        # num_offspring = math.ceil(instance.parameters["offspring_ratio"] * size)
+        to_generate = size - instance.parameters["retainment_k"]
         with multiprocessing.Pool() as p:
-            out = p.starmap(recombine, [(instance, population) for _ in range(num_offspring)])
+            out = p.starmap(recombine, [(instance, population) for _ in range(to_generate)])
         # print(f"after repairing {time1 - time()}")
 
         return out

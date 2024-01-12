@@ -16,7 +16,7 @@ class Instance:
         self.parameters = {"threshold": 0.7,
                            "popsize": 20,
                            "penalty": 112,
-                           "selection_size": 0.7,
+                           "selection_size": 0.76,
                            "recombination_ratio": 1.04,
                            "offspring_ratio": 0.9,
                            "retainment_k": 3,
