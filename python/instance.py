@@ -14,7 +14,7 @@ class Instance:
         self.connected = np.zeros((n, n), dtype=int)
         self.weights = np.zeros((n, n), dtype=int)
         self.parameters = {"threshold": 0.8,
-                           "popsize": 10,
+                           "popsize": 20,
                            "penalty": 10,
                            "selection_size": 0.7,
                            "offspring_ratio": 0.9,

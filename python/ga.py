@@ -4,6 +4,8 @@ from selector.selector import Selector
 from recombiner.recombiner import Recombiner
 from mutator.mutator import Mutator
 import multiprocessing
+from time import time
+
 
 class GeneticAlgorithm:
 
@@ -35,14 +37,21 @@ class GeneticAlgorithm:
     def next_generation(self):
         selected = self.selector.select(self.instance, self.population, self.n_pop)
         # kids = self.recombiner.recombine(self.instance, selected, self.n_pop)
+        time1 = time()
         kids = self.recombiner.recombine(self.instance, selected, self.n_pop)
+        print(f"after recombine {time1 - time}")
         i = 0
         while len(kids) < self.n_pop:
             kids.append(selected[i])
             i += 1
+
+        time1 = time()
         population: list[Solution] = self.mutator.mutate(self.instance, kids)
+        print(f"after mutation {time1 - time}")
+        time1 = time()
         with multiprocessing.Pool() as p:
             population = p.map(construct_solution, population)
+        print(f"after repairing {time1 - time}")
         population.sort()
         self.population = population
         self.generation += 1
